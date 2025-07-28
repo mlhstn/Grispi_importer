@@ -5,10 +5,8 @@ import com.example.demo.Entity.Organization;
 import com.example.demo.Repository.GroupRepository;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class OrganizationMapper {
@@ -19,48 +17,55 @@ public class OrganizationMapper {
         this.groupRepository = groupRepository;
     }
 
-    public Organization mapToOrganization(Map<String, Object> row) {
+    public Organization mapToOrganization(Map<String, Object> row, Map<String, String> mappings) {
         Organization org = new Organization();
 
-        org.setExternalId((String) row.get("os.external_id"));
-        org.setName((String) row.get("name"));
-        org.setDescription((String) row.get("description"));
-        org.setDetails((String) row.get("details"));
-        org.setNotes((String) row.get("notes"));
+        org.setExternalId(getValueFromRow(row, mappings, "externalId"));
+        org.setName(getValueFromRow(row, mappings, "name"));
+        org.setDescription(getValueFromRow(row, mappings, "description"));
+        org.setDetails(getValueFromRow(row, mappings, "details"));
+        org.setNotes(getValueFromRow(row, mappings, "notes"));
 
-        // Group adı varsa DB'den bul
-        String groupNameStr = (String) row.get("group");
-        if (groupNameStr != null && !groupNameStr.trim().isEmpty()) {
-            Group group = groupRepository.findByName(groupNameStr.trim());
-            org.setGroup(group);
+        // Group
+        String groupName = getValueFromRow(row, mappings, "group");
+        if (groupName != null && !groupName.isBlank()) {
+            Group group = groupRepository.findByName(groupName);
+            if (group != null) org.setGroup(group);
         }
 
-        // Domains
-        String domainsStr = (String) row.get("domains");
-        if (domainsStr != null && !domainsStr.trim().isEmpty()) {
-            List<String> domains = Arrays.asList(domainsStr.split(","));
-            org.setDomains(trimList(domains));
-        } else {
-            org.setDomains(new ArrayList<>());
+        // Domains (virgülle ayrılmış)
+        String domainsStr = getValueFromRow(row, mappings, "domains");
+        if (domainsStr != null) {
+            List<String> domains = Arrays.stream(domainsStr.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            org.setDomains(domains);
         }
 
-        // Tags
-        String tagsStr = (String) row.get("tags");
-        if (tagsStr != null && !tagsStr.trim().isEmpty()) {
-            List<String> tags = Arrays.asList(tagsStr.split(" "));
-            org.setTags(trimList(tags));
-        } else {
-            org.setTags(new ArrayList<>());
+        // Tags (boşlukla ayrılmış)
+        String tagsStr = getValueFromRow(row, mappings, "tags");
+        if (tagsStr != null) {
+            List<String> tags = Arrays.stream(tagsStr.split(" "))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .collect(Collectors.toList());
+            org.setTags(tags);
         }
 
         return org;
     }
 
-    private List<String> trimList(List<String> list) {
-        List<String> trimmed = new ArrayList<>();
-        for (String item : list) {
-            trimmed.add(item.trim());
-        }
-        return trimmed;
+    private String getValueFromRow(Map<String, Object> row, Map<String, String> mappings, String grispiField) {
+        String columnName = mappings.entrySet().stream()
+                .filter(e -> e.getValue().equals(grispiField))
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
+
+        if (columnName == null) return null;
+
+        Object value = row.get(columnName);
+        return value != null ? value.toString().trim() : null;
     }
 }

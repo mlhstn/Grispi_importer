@@ -4,9 +4,6 @@ import com.example.demo.Entity.enums.Channel;
 import com.example.demo.Entity.enums.TicketPriority;
 import com.example.demo.Entity.enums.TicketStatus;
 import com.example.demo.Entity.enums.TicketType;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -20,17 +17,29 @@ public class Ticket {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String externalId; // ts.external_id
+    private String externalId;
     private String subject;
     private String description;
 
-    private String creator;
+    @ManyToOne
+    @JoinColumn(name = "creator_id")
+    private User creator;
 
-    private String requester;
+    @ManyToOne
+    @JoinColumn(name = "requester_id")
+    private User requester;
 
-    private String assignee;
+    @ManyToOne
+    @JoinColumn(name = "assignee_id")
+    private User assignee;
 
-    private String assigneeGroup;
+    @ManyToOne
+    @JoinColumn(name = "assignee_group_id")
+    private Group assigneeGroup;
+
+    @ManyToOne
+    @JoinColumn(name = "organization_id")
+    private Organization organization;
 
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
@@ -45,7 +54,6 @@ public class Ticket {
     private TicketPriority priority;
 
     private String form;
-
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime solvedAt;
@@ -55,35 +63,7 @@ public class Ticket {
     @Column(name = "tag")
     private List<String> tags;
 
-    public Ticket() {
-
-    }
-
-    public Ticket(Long id, String externalId,
-                  String subject, String description,
-                  String creator, String requester, String assignee,
-                  String assigneeGroup, TicketStatus status, Channel channel,
-                  TicketType type, TicketPriority priority, String form,
-                  LocalDateTime createdAt, LocalDateTime updatedAt,
-                  LocalDateTime solvedAt, List<String> tags) {
-        this.id = id;
-        this.externalId = externalId;
-        this.subject = subject;
-        this.description = description;
-        this.creator = creator;
-        this.requester = requester;
-        this.assignee = assignee;
-        this.assigneeGroup = assigneeGroup;
-        this.status = status;
-        this.channel = channel;
-        this.type = type;
-        this.priority = priority;
-        this.form = form;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.solvedAt = solvedAt;
-        this.tags = tags;
-    }
+    // Getter ve Setter'lar
 
     public Long getId() {
         return id;
@@ -117,36 +97,44 @@ public class Ticket {
         this.description = description;
     }
 
-    public String getCreator() {
+    public User getCreator() {
         return creator;
     }
 
-    public void setCreator(String creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 
-    public String getRequester() {
+    public User getRequester() {
         return requester;
     }
 
-    public void setRequester(String requester) {
+    public void setRequester(User requester) {
         this.requester = requester;
     }
 
-    public String getAssignee() {
+    public User getAssignee() {
         return assignee;
     }
 
-    public void setAssignee(String assignee) {
+    public void setAssignee(User assignee) {
         this.assignee = assignee;
     }
 
-    public String getAssigneeGroup() {
+    public Group getAssigneeGroup() {
         return assigneeGroup;
     }
 
-    public void setAssigneeGroup(String assigneeGroup) {
+    public void setAssigneeGroup(Group assigneeGroup) {
         this.assigneeGroup = assigneeGroup;
+    }
+
+    public Organization getOrganization() {
+        return organization;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
     }
 
     public TicketStatus getStatus() {

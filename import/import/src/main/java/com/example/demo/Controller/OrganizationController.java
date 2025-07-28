@@ -1,5 +1,6 @@
 package com.example.demo.Controller;
 
+import com.example.demo.DTO.OrganizationImportRequest;
 import com.example.demo.DTO.OrganizationImportResponse;
 import com.example.demo.Entity.Organization;
 import com.example.demo.Mapper.OrganizationMapper;
@@ -20,26 +21,31 @@ public class OrganizationController {
     private final OrganizationService organizationService;
     private final OrganizationMapper organizationMapper;
 
-
-    public OrganizationController(OrganizationValidator organizationValidator, OrganizationService organizationService, OrganizationMapper organizationMapper) {
+    public OrganizationController(OrganizationValidator organizationValidator,
+                                  OrganizationService organizationService,
+                                  OrganizationMapper organizationMapper) {
         this.organizationValidator = organizationValidator;
         this.organizationService = organizationService;
         this.organizationMapper = organizationMapper;
     }
 
+    // 🧠 Dinamik eşleştirme ile organization import endpoint'i
+    @PostMapping("/import-mapped")
+    public ResponseEntity<OrganizationImportResponse> importMappedOrganizations(
+            @RequestBody OrganizationImportRequest request) {
 
-    @PostMapping("/import")
-    public ResponseEntity<OrganizationImportResponse> importOrganizations(@RequestBody List<Map<String, Object>> data) {
         OrganizationImportResponse response = new OrganizationImportResponse();
 
-        for (Map<String, Object> row : data) {
-            // Organization nesnesini oluştur
-            Organization org = organizationMapper.mapToOrganization(row);
+        List<Map<String, Object>> data = request.getData();
+        Map<String, String> columnMappings = request.getColumnMappings();
 
-            // Validasyonu çalıştır
+        for (Map<String, Object> row : data) {
+            // Map -> Organization dönüşümü (eşleştirmeyle)
+            Organization org = organizationMapper.mapToOrganization(row, columnMappings);
+
+            // Validasyon
             OrganizationValidationResult validationResult = organizationValidator.validate(org);
 
-            // Valid ise kaydet
             if (validationResult.isValid()) {
                 organizationService.saveOrganization(org);
                 response.getSavedOrganizations().add(org.getExternalId());
@@ -51,6 +57,4 @@ public class OrganizationController {
 
         return ResponseEntity.ok(response);
     }
-
-
 }
