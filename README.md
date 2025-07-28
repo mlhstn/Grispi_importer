@@ -34,19 +34,8 @@ Kullanıcıların ellerindeki .xlsx formatındaki kontak verilerini kolayca Gris
 
 ---
 
-## 📁 Proje Yapısı
+## 📁 İşleyiş Aşamaları
 
-src
-├── Controller/ # API endpoint'leri
-├── Service/ # İş mantığı
-├── Repository/ # DB işlemleri
-├── Mapper/ # Excel verisinden entity'ye dönüştürme
-├── DTO/ # Veri transfer nesneleri
-├── Entity/ # Veritabanı tabloları
-├── Validation/ # Alan bazlı doğrulamalar
-└── application.properties # Config dosyası
-
-şleyiş Aşamaları
 
 1. ✉️ Excel Dosyası Yükleme
 
