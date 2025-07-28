@@ -46,5 +46,53 @@ src
 ├── Validation/ # Alan bazlı doğrulamalar
 └── application.properties # Config dosyası
 
+şleyiş Aşamaları
 
+1. ✉️ Excel Dosyası Yükleme
+
+Kullanıcı bir .xlsx dosyası yükler.
+
+Her sheet farklı bir varlık (User, Ticket vb.) içerebilir.
+
+2. 🔍 Önizleme (Preview) Aşaması
+
+Her sheet'ten ilk 5 satır (başlık + veri) okunur.
+
+Kullanıcıya JSON formatında gösterilir.
+
+3. 🔀 Dinamik Eşleştirme
+
+Kullanıcı, Excel sütunlarını Grispi alan adlarına eşleştirir.
+
+{
+  "columnMappings": {
+    "First Name": "firstName",
+    "Emails": "emails"
+  }
+}
+
+4. ✅ Doğrulama (Validation)
+
+Her entity için kendi validator sınıfı yazılmıştır.
+
+Enum alanları, zorunlu alanlar, e-posta formatları gibi kurallar denetlenir.
+
+5. 🔄 Mapping ve Kayıt
+
+Excel satırları Map<String, Object> olarak alınır.
+
+Mapper sınıfları aracılığıyla entity'lere dönüştürülür.
+
+Veriler Service sınıfı aracılığıyla Repository katmanına iletilir.
+
+6. 📊 Raporlama
+
+Kayıtlar başarılı ise savedUsers, savedOrganizations gibi listelerde dönülür.
+
+Eksik/hatalı olanlar failedUsers gibi alanlarda detaylı hata mesajları ile birlikte sunulur.
+
+ Neden Dinamik Mapping?
+
+Farklı kurumların Excel sütun adları farklı olabilir. Bu sistem sabit alanlara bağlı kalmadan, 
+kullanıcının sütunları kendi seçmesine izin verir. Bu sayede her tür dosya desteklenebilir hale gelir.
 
