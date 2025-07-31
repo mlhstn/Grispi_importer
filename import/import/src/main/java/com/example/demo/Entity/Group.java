@@ -20,12 +20,4 @@ public class Group {
 
     private String name;
 
-    // İlişkiler için örnek:
-    // CustomField ile ManyToMany ilişkisi zaten CustomField'da tanımlı, burada karşılıklı tanım opsiyonel.
-    // Eğer User ile ilişki olursa şöyle ekleyebilirsin:
-    /*
-    @ManyToMany(mappedBy = "groups")
-    private List<User> users;
-    */
-
 }
