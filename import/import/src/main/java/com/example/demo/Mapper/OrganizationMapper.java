@@ -56,6 +56,10 @@ public class OrganizationMapper {
         return org;
     }
 
+    public Organization mapWithMapping(Map<String, Object> row, Map<String, String> mappings) {
+        return mapToOrganization(row, mappings);
+    }
+
     private String getValueFromRow(Map<String, Object> row, Map<String, String> mappings, String grispiField) {
         String columnName = mappings.entrySet().stream()
                 .filter(e -> e.getValue().equals(grispiField))

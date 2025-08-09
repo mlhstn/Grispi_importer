@@ -97,4 +97,8 @@ public class TicketMapper {
 
         return ticket;
     }
+
+    public Ticket mapWithMapping(Map<String, Object> row, Map<String, String> mappings) {
+        return mapToTicket(row, mappings);
+    }
 }

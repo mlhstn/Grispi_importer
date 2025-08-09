@@ -8,16 +8,14 @@ import com.example.demo.Service.UserService;
 import com.example.demo.Validation.UserValidationResult;
 import com.example.demo.Validation.UserValidator;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UserController {
 
     private final UserValidator userValidator;
@@ -58,6 +56,7 @@ public class UserController {
 
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/import-mapped")
     public ResponseEntity<UserImportResponse> importMappedUsers(@RequestBody UserImportRequest request) {
         UserImportResponse response = new UserImportResponse();
@@ -78,5 +77,28 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-
+    @PostMapping("/import-mapping")
+    public ResponseEntity<Map<String, Object>> importWithMapping(@RequestBody Map<String, Object> request) {
+        try {
+            String importType = (String) request.get("importType");
+            List<Map<String, Object>> mappings = (List<Map<String, Object>>) request.get("mappings");
+            Integer totalRows = (Integer) request.get("totalRows");
+            
+            // Burada mapping verilerini işleyebilirsiniz
+            // Şimdilik basit bir response döndürüyoruz
+            
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Mapping verileri alındı",
+                "importType", importType,
+                "mappedFields", mappings.size(),
+                "totalRows", totalRows
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "error", e.getMessage()
+            ));
+        }
+    }
 }

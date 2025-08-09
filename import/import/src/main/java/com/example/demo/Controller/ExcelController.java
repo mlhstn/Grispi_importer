@@ -9,6 +9,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/excel")
+@CrossOrigin(origins = "http://localhost:3000")
 public class ExcelController {
 
     private final ExcelService excelService;
