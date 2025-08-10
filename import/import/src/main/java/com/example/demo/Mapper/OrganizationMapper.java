@@ -61,15 +61,8 @@ public class OrganizationMapper {
     }
 
     private String getValueFromRow(Map<String, Object> row, Map<String, String> mappings, String grispiField) {
-        String columnName = mappings.entrySet().stream()
-                .filter(e -> e.getValue().equals(grispiField))
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
-
-        if (columnName == null) return null;
-
-        Object value = row.get(columnName);
+        // ExcelService zaten grispiField adını key olarak kullanıyor
+        Object value = row.get(grispiField);
         return value != null ? value.toString().trim() : null;
     }
 }

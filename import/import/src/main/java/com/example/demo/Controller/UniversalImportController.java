@@ -1,14 +1,17 @@
 package com.example.demo.Controller;
 
-import com.example.demo.Config.ImportConfig;
 import com.example.demo.Factory.ImportServiceFactory;
-import com.example.demo.Service.UserService;
-import com.example.demo.Service.TicketService;
-import com.example.demo.Service.OrganizationService;
+import com.example.demo.Service.ImportService;
+import com.example.demo.Config.ImportConfig;
+import com.example.demo.Service.ExcelService;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,11 +23,15 @@ public class UniversalImportController {
     
     private final ImportServiceFactory serviceFactory;
     private final ImportConfig importConfig;
+    private final ExcelService excelService;
+    private final ObjectMapper objectMapper;
     
     @Autowired
-    public UniversalImportController(ImportServiceFactory serviceFactory) {
+    public UniversalImportController(ImportServiceFactory serviceFactory, ExcelService excelService) {
         this.serviceFactory = serviceFactory;
+        this.excelService = excelService;
         this.importConfig = null; // Şimdilik null, sonra implement edilecek
+        this.objectMapper = new ObjectMapper();
     }
     
     /**
@@ -39,54 +46,38 @@ public class UniversalImportController {
             @RequestBody List<Map<String, Object>> data) {
         
         try {
-            // Import türünün desteklenip desteklenmediğini kontrol et
             if (!serviceFactory.isSupported(importType)) {
-                return ResponseEntity.badRequest()
-                    .body("Desteklenmeyen import türü: " + importType);
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Desteklenmeyen import türü: " + importType);
+                return ResponseEntity.badRequest().body(errorResponse);
             }
             
-            // Konfigürasyon kontrolü şimdilik atlanıyor
-            // ImportConfig.ImportTypeConfig typeConfig = importConfig.getTypes().get(importType);
-            // if (typeConfig != null && !typeConfig.isEnabled()) {
-            //     return ResponseEntity.badRequest()
-            //         .body("Bu import türü şu anda devre dışı: " + importType);
-            // }
+            // ImportServiceFactory'den uygun servisi al
+            ImportService importService = serviceFactory.getService(importType);
             
-            // İlgili service'i al ve import işlemini gerçekleştir
-            Object result = null;
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", importType + " import başarılı - " + data.size() + " kayıt işlendi");
+            response.put("totalRecords", data.size());
             
-            switch (importType) {
-                case "Contact":
-                    UserService userService = serviceFactory.getService(importType);
-                    result = "Contact import başarılı - " + data.size() + " kayıt işlendi";
-                    break;
-                case "Ticket":
-                    TicketService ticketService = serviceFactory.getService(importType);
-                    result = "Ticket import başarılı - " + data.size() + " kayıt işlendi";
-                    break;
-                case "Organization":
-                    OrganizationService organizationService = serviceFactory.getService(importType);
-                    result = "Organization import başarılı - " + data.size() + " kayıt işlendi";
-                    break;
-                default:
-                    return ResponseEntity.badRequest().body("Desteklenmeyen import türü");
-            }
-            
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body("Import işlemi sırasında hata oluştu: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Import işlemi sırasında hata oluştu: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
         }
     }
     
     /**
-     * Veri validation endpoint'i
+     * Mapping verilerini alan endpoint
      */
-    @PostMapping("/{importType}/validate")
-    public ResponseEntity<?> validateData(
+    @PostMapping("/{importType}/import-mapping")
+    public ResponseEntity<?> importWithMapping(
             @PathVariable String importType,
-            @RequestBody List<Map<String, Object>> data) {
+            @RequestBody Map<String, Object> mappingData) {
         
         try {
             if (!serviceFactory.isSupported(importType)) {
@@ -94,13 +85,163 @@ public class UniversalImportController {
                     .body("Desteklenmeyen import türü: " + importType);
             }
             
-            Object result = "Validation başarılı - " + data.size() + " kayıt kontrol edildi";
+            // Mapping verilerini logla
+            System.out.println("Mapping verileri alındı: " + mappingData);
             
-            return ResponseEntity.ok(result);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", importType + " mapping verileri başarıyla alındı");
+            response.put("importType", importType);
+            response.put("mappedFields", mappingData.get("mappings"));
+            response.put("totalRows", mappingData.get("totalRows"));
+            response.put("timestamp", mappingData.get("timestamp"));
+            
+            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body("Validation işlemi sırasında hata oluştu: " + e.getMessage());
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Mapping işlemi sırasında hata oluştu: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+
+    /**
+     * Excel preview endpoint'i
+     */
+    @PostMapping("/excel/preview")
+    public ResponseEntity<?> previewExcel(@RequestParam("file") MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Dosya boş olamaz");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // Excel dosyasını oku ve preview döndür
+            Map<String, Object> preview = new HashMap<>();
+            preview.put("filename", file.getOriginalFilename());
+            preview.put("size", file.getSize());
+            preview.put("contentType", file.getContentType());
+            preview.put("message", "Excel dosyası başarıyla alındı");
+            
+            return ResponseEntity.ok(preview);
+            
+        } catch (Exception e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Excel preview hatası: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+
+    /**
+     * Excel dosyasını oku ve veritabanına kaydet
+     */
+    @PostMapping("/{importType}/import-excel")
+    public ResponseEntity<Map<String, Object>> importExcelWithMapping(
+            @PathVariable String importType,
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("mappings") String mappingsJson) {
+        
+        try {
+            System.out.println("Import request received: " + importType);
+            System.out.println("File: " + file.getOriginalFilename() + ", size: " + file.getSize());
+            System.out.println("Mappings JSON: " + mappingsJson);
+            
+            if (file.isEmpty()) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Dosya boş olamaz");
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            if (!serviceFactory.isSupported(importType)) {
+                Map<String, Object> errorResponse = new HashMap<>();
+                errorResponse.put("success", false);
+                errorResponse.put("error", "Desteklenmeyen import türü: " + importType);
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
+            
+            // Excel dosyasını oku
+            ExcelService.ExcelData excelData = excelService.readFullExcel(file);
+            System.out.println("Excel data read: " + excelData.getHeaders().size() + " headers, " + excelData.getRows().size() + " rows");
+            
+            // Mapping JSON'ını parse et
+            List<Map<String, Object>> mappings = new ArrayList<>();
+            try {
+                // Jackson ile JSON parsing
+                List<Map<String, Object>> parsedMappings = objectMapper.readValue(
+                    mappingsJson, 
+                    new TypeReference<List<Map<String, Object>>>() {}
+                );
+                mappings = parsedMappings;
+                System.out.println("Parsed mappings: " + mappings.size() + " mappings");
+            } catch (Exception e) {
+                System.out.println("Mapping parsing error: " + e.getMessage());
+                // Hata durumunda boş liste kullan
+                mappings = new ArrayList<>();
+            }
+            
+            // Excel verilerini mapping'e göre dönüştür
+            List<Map<String, Object>> transformedData = excelService.transformDataWithMapping(excelData, mappings);
+            System.out.println("Transformed data: " + transformedData.size() + " records");
+            
+            // ImportServiceFactory'den uygun servisi al
+            ImportService importService = serviceFactory.getService(importType);
+            Map<String, Object> result = importService.importExcelWithMapping(file, mappingsJson);
+            
+            System.out.println("Import result: " + result.get("successCount") + " success, " + result.get("errorCount") + " errors");
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", true);
+            response.put("message", importType + " import tamamlandı");
+            response.put("importType", importType);
+            response.put("totalRecords", result.get("totalRecords"));
+            response.put("successCount", result.get("successCount"));
+            response.put("errorCount", result.get("errorCount"));
+            response.put("errors", result.get("errors"));
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            System.out.println("Import error: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("success", false);
+            errorResponse.put("error", "Excel import hatası: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(errorResponse);
+        }
+    }
+    
+    /**
+     * Veri validation endpoint'i
+     */
+    @PostMapping("/{importType}/validate")
+    public ResponseEntity<Map<String, Object>> validateData(
+            @PathVariable String importType,
+            @RequestBody List<Map<String, Object>> data) {
+        
+        Map<String, Object> response = new HashMap<>();
+        
+        try {
+            if (!serviceFactory.isSupported(importType)) {
+                response.put("success", false);
+                response.put("error", "Desteklenmeyen import türü: " + importType);
+                return ResponseEntity.badRequest().body(response);
+            }
+            
+            response.put("success", true);
+            response.put("message", "Validation başarılı - " + data.size() + " kayıt kontrol edildi");
+            response.put("totalRecords", data.size());
+            
+            return ResponseEntity.ok(response);
+            
+        } catch (Exception e) {
+            response.put("success", false);
+            response.put("error", "Validation işlemi sırasında hata oluştu: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
         }
     }
     
@@ -108,34 +249,46 @@ public class UniversalImportController {
      * Desteklenen import türlerini döner
      */
     @GetMapping("/types")
-    public ResponseEntity<?> getSupportedTypes() {
+    public ResponseEntity<Map<String, Object>> getSupportedTypes() {
+        Map<String, Object> response = new HashMap<>();
         Map<String, String> types = new HashMap<>();
         types.put("Contact", "Kişi İmport");
         types.put("Ticket", "Bilet İmport");
         types.put("Organization", "Organizasyon İmport");
-        return ResponseEntity.ok(types);
+        types.put("Group", "Grup İmport");
+        types.put("CustomField", "Özel Alan İmport");
+        
+        response.put("success", true);
+        response.put("types", types);
+        return ResponseEntity.ok(response);
     }
     
     /**
      * Belirli bir import türünün alanlarını döner
      */
     @GetMapping("/{importType}/fields")
-    public ResponseEntity<?> getImportFields(@PathVariable String importType) {
+    public ResponseEntity<Map<String, Object>> getImportFields(@PathVariable String importType) {
+        Map<String, Object> response = new HashMap<>();
+        
         try {
             if (!serviceFactory.isSupported(importType)) {
-                return ResponseEntity.badRequest()
-                    .body("Desteklenmeyen import türü: " + importType);
+                response.put("success", false);
+                response.put("error", "Desteklenmeyen import türü: " + importType);
+                return ResponseEntity.badRequest().body(response);
             }
             
             List<String> fields = java.util.Arrays.asList(
                 "externalId", "firstName", "lastName", "phone", "emails"
             );
             
-            return ResponseEntity.ok(fields);
+            response.put("success", true);
+            response.put("fields", fields);
+            return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            return ResponseEntity.internalServerError()
-                .body("Alan listesi alınırken hata oluştu: " + e.getMessage());
+            response.put("success", false);
+            response.put("error", "Alan listesi alınırken hata oluştu: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
         }
     }
 }

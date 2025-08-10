@@ -15,11 +15,12 @@ public class TicketValidator {
         TicketValidationResult result = new TicketValidationResult();
 
         if (!StringUtils.hasText(ticket.getExternalId())) {
-            result.addError("externalId boş olamaz.");
+            result.addError("External ID boş olamaz.");
         }
 
-        if (!StringUtils.hasText(ticket.getSubject()) || ticket.getSubject().length() < 3) {
-            result.addError("Subject boş olamaz ve en az 3 karakter olmalıdır.");
+        // Subject zorunlu değil, sadece varsa kontrol et
+        if (StringUtils.hasText(ticket.getSubject()) && ticket.getSubject().length() < 3) {
+            result.addError("Subject en az 3 karakter olmalıdır.");
         }
 
         return result;
