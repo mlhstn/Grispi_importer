@@ -1,87 +1,142 @@
-# 📦 Grispi Contacts Importer
 
-Grispi Contacts Importer, farklı kaynaklardan gelen (Excel .xlsx formatında) kullanıcı (User), organizasyon (Organization), destek bileti (Ticket) ve
-özel alan (CustomField) verilerini Grispi sistemine uygun formata dönüştürmek,
-doğrulamak ve kalıcı olarak SQLite veritabanına kaydetmek için geliştirilmiş bir Spring Boot uygulamasıdır.
+## 🚀 Kurulum ve Çalıştırma
 
----
+### Gereksinimler
+- Java 21
+- Maven 3.8+
+- React
+- TypeScript
+- Ant Ant Design
 
-## 🚀 Proje Amacı
+### Backend Kurulumu
+```bash
+cd stajkabul/import/import
+mvn clean install
+mvn spring-boot:run
+```
 
-Kullanıcıların ellerindeki .xlsx formatındaki kontak verilerini kolayca Grispi sistemine entegre edebilmesini sağlayan bir import aracı geliştirmek. Proje şu temel özellikleri sağlar:
+Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
 
-- Excel dosyası yükleme
-- İlk birkaç satırın önizlenmesi
-- Sütunların Grispi alanları ile eşleştirilmesi
-- Verilerin doğrulanması (validation)
-- Başarılı/hatalı kayıtların raporlanması
-- Veritabanına (SQLite) kalıcı kayıt işlemi
+### Frontend Kurulumu
+```bash
+cd grispi-frontend
+npm install
+npm start
+```
 
----
+Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 
-## 🧩 Kullanılan Teknolojiler
+## 📋 Kullanım Kılavuzu
 
-| Teknoloji | Açıklama |
-|----------|----------|
-| Java 17 | Backend dili |
-| Spring Boot | Uygulama çatısı |
-| Spring Data JPA | ORM işlemleri |
-| Hibernate | Veritabanı bağlantısı |
-| SQLite | Hafif veritabanı |
-| Apache POI | Excel okuma/yazma |
-| Postman | Test ortamı |
-| JSON | Veri formatı |
+### 1. Dosya Yükleme
+- "Dosya Seç" butonuna tıklayın
+- Excel (.xlsx) dosyanızı seçin
+- Import türünü seçin (Contact, Organization, Ticket, CustomField)
 
----
+### 2. Veri Önizleme
+- Yüklenen dosyanın ilk 5 satırı otomatik gösterilir
+- Sütun başlıkları ve örnek veriler görüntülenir
 
-## 📁 İşleyiş Aşamaları
+### 3. Alan Eşleştirme
+- Excel sütunlarını Grispi alanlarıyla eşleştirin
+- Zorunlu alanlar kırmızı ile işaretlenir
+- Eşleştirme tamamlandığında "Devam Et" butonuna tıklayın
 
+### 4. Import İşlemi
+- Sistem verileri doğrular ve kaydeder
+- Başarılı/başarısız kayıtlar raporlanır
+- Hata detayları gösterilir
 
-1. ✉️ Excel Dosyası Yükleme
+## �� API Endpoints
 
-Kullanıcı bir .xlsx dosyası yükler.
+### Excel İşlemleri
+- `POST /api/import/excel/preview` - Excel önizleme
+- `POST /api/import/{type}/import-excel` - Excel import
 
-Her sheet farklı bir varlık (User, Ticket vb.) içerebilir.
+### Kullanıcı İşlemleri
+- `POST /api/users/validate` - Kullanıcı doğrulama
+- `POST /api/users/import` - Kullanıcı import
+- `POST /api/users/import-mapped` - Mapping ile import
 
-2. 🔍 Önizleme (Preview) Aşaması
+### Organizasyon İşlemleri
+- `POST /api/organizations/validate` - Organizasyon doğrulama
+- `POST /api/organizations/import` - Organizasyon import
 
-Her sheet'ten ilk 5 satır (başlık + veri) okunur.
+### Bilet İşlemleri
+- `POST /api/tickets/validate` - Bilet doğrulama
+- `POST /api/tickets/import` - Bilet import
 
-Kullanıcıya JSON formatında gösterilir.
+## 📊 Veri Modelleri
 
-3. 🔀 Dinamik Eşleştirme
-
-Kullanıcı, Excel sütunlarını Grispi alan adlarına eşleştirir.
-
+### User (Kullanıcı)
+```json
 {
-  "columnMappings": {
-    "First Name": "firstName",
-    "Emails": "emails"
-  }
+  "externalId": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "phone": "string (E.164 format)",
+  "emails": ["string"],
+  "phones": ["string"],
+  "organization": "Organization",
+  "groups": ["Group"],
+  "language": "TR|EN|DE",
+  "role": "ADMIN|AGENT|CUSTOMER",
+  "tags": ["string"],
+  "enabled": "boolean"
 }
+```
 
-4. ✅ Doğrulama (Validation)
+### Organization (Organizasyon)
+```json
+{
+  "externalId": "string",
+  "name": "string",
+  "description": "string",
+  "domains": ["string"],
+  "tags": ["string"]
+}
+```
 
-Her entity için kendi validator sınıfı yazılmıştır.
+## ✅ Validasyon Kuralları
 
-Enum alanları, zorunlu alanlar, e-posta formatları gibi kurallar denetlenir.
+### User Validasyonu
+- `externalId`: Zorunlu, boş olamaz
+- `firstName`: Zorunlu, boş olamaz
+- `lastName`: Zorunlu, boş olamaz
+- `phone`: E.164 formatında olmalı (+90XXXXXXXXXX)
+- `emails`: Geçerli email formatında olmalı
+- `role`: ADMIN, AGENT veya CUSTOMER olmalı
 
-5. 🔄 Mapping ve Kayıt
+### Organization Validasyonu
+- `externalId`: Zorunlu, boş olamaz
+- `name`: Zorunlu, boş olamaz
 
-Excel satırları Map<String, Object> olarak alınır.
+## 🔄 Otomatik İşlemler
 
-Mapper sınıfları aracılığıyla entity'lere dönüştürülür.
+### Organization Otomatik Oluşturma
+- Excel'de belirtilen organization bulunamazsa otomatik oluşturulur
+- `externalId` ve `name` alanları aynı değerle set edilir
 
-Veriler Service sınıfı aracılığıyla Repository katmanına iletilir.
+### Group Otomatik Oluşturma
+- Excel'de belirtilen group bulunamazsa otomatik oluşturulur
+- `name` alanı ile yeni group oluşturulur
 
-6. 📊 Raporlama
+## �� Hata Yönetimi
 
-Kayıtlar başarılı ise savedUsers, savedOrganizations gibi listelerde dönülür.
+### Validation Hataları
+- Her entity için özel validator sınıfları
+- Detaylı hata mesajları
+- Hatalı kayıtların raporlanması
 
-Eksik/hatalı olanlar failedUsers gibi alanlarda detaylı hata mesajları ile birlikte sunulur.
+### Exception Handling
+- Global exception handler
+- Kullanıcı dostu hata mesajları
+- Log kayıtları
 
- Neden Dinamik Mapping?
+- Projeye ait ilgili videoya aşağıdaki linkten ulaşabilirsiniz:
+  https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0
 
-Farklı kurumların Excel sütun adları farklı olabilir. Bu sistem sabit alanlara bağlı kalmadan, 
-kullanıcının sütunları kendi seçmesine izin verir. Bu sayede her tür dosya desteklenebilir hale gelir.
+
+
+
 
