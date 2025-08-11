@@ -3,8 +3,10 @@
 
 ### Gereksinimler
 - Java 21
-- Node.js 18+
 - Maven 3.8+
+- React
+- TypeScript
+- Ant Ant Design
 
 ### Backend Kurulumu
 ```bash
@@ -36,7 +38,7 @@ Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 - Sütun başlıkları ve örnek veriler görüntülenir
 
 ### 3. Alan Eşleştirme
-- Excel sütunlarını Grispi alanlarına sürükle-bırak ile eşleştirin
+- Excel sütunlarını Grispi alanlarıyla eşleştirin
 - Zorunlu alanlar kırmızı ile işaretlenir
 - Eşleştirme tamamlandığında "Devam Et" butonuna tıklayın
 
@@ -147,46 +149,6 @@ Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 - Plugin sistemi
 - Factory pattern kullanımı
 
-## �� Güvenlik
-
-### Veri Güvenliği
-- Input validation
-- SQL injection koruması
-- XSS koruması
-
-### Dosya Güvenliği
-- Dosya boyutu kontrolü
-- Dosya tipi kontrolü
-- Güvenli dosya işleme
-
-## 🧪 Test
-
-### Test Stratejisi
-- Unit testler
-- Integration testler
-- API testleri
-
-### Test Verileri
-- Örnek Excel dosyaları
-- Test senaryoları
-- Mock data
-
-## �� Geliştirme Notları
-
-### Son Güncellemeler
-- Telefon validasyonu düzeltildi
-- Organization/Group otomatik oluşturma eklendi
-- Mapping sistemi iyileştirildi
-- Debug logları eklendi
-
-### Bilinen Sorunlar
-- Yok
-
-### Gelecek Özellikler
-- CSV dosya desteği
-- Bulk import optimizasyonu
-- Real-time progress tracking
-- Email notification sistemi
 
 ## �� Katkıda Bulunma
 
@@ -196,16 +158,6 @@ Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 4. Push yapın (`git push origin feature/amazing-feature`)
 5. Pull Request oluşturun
 
-## 📄 Lisans
 
-Bu proje MIT lisansı altında lisanslanmıştır.
-
-## 📞 İletişim
-
-Proje Sahibi - [@melih](mailto:melih@example.com)
 
 Proje Linki: [https://github.com/username/grispi-import](https://github.com/username/grispi-import)
-
----
-
-⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
