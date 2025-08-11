@@ -121,10 +121,6 @@ Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 - Excel'de belirtilen group bulunamazsa otomatik oluşturulur
 - `name` alanı ile yeni group oluşturulur
 
-### Telefon Formatı Düzeltme
-- 10 haneli Türkiye telefon numaralarına otomatik `+90` eklenir
-- E.164 formatına uygun hale getirilir
-
 ## �� Hata Yönetimi
 
 ### Validation Hataları
@@ -137,27 +133,10 @@ Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
 - Kullanıcı dostu hata mesajları
 - Log kayıtları
 
-## 📈 Performans
-
-### Optimizasyonlar
-- Batch processing için hazır altyapı
-- Lazy loading ile memory optimizasyonu
-- Connection pooling
-
-### Ölçeklenebilirlik
-- Modüler yapı
-- Plugin sistemi
-- Factory pattern kullanımı
-
-
-## �� Katkıda Bulunma
-
-1. Fork yapın
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit yapın (`git commit -m 'Add amazing feature'`)
-4. Push yapın (`git push origin feature/amazing-feature`)
-5. Pull Request oluşturun
+- Projeye ait ilgili videoya aşağıdaki linkten ulaşabilirsiniz:
+  https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0
 
 
 
-Proje Linki: [https://github.com/username/grispi-import](https://github.com/username/grispi-import)
+
+
