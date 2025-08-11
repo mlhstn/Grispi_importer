@@ -80,19 +80,27 @@ public class UserService implements ImportService {
             
             for (Map<String, Object> row : transformedData) {
                 try {
-                    User user = userMapper.mapWithMapping(row, new HashMap<>());
+                    System.out.println("Processing row: " + row);
+                    User user = userMapper.mapWithMapping(row, mappings);
+                    System.out.println("Mapped user: " + user);
+                    
                     UserValidationResult validationResult = userValidator.validate(user);
+                    System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
                     
                     if (validationResult.isValid()) {
                         saveUser(user);
                         successCount++;
+                        System.out.println("User saved successfully: " + user.getExternalId());
                     } else {
                         errorCount++;
                         errors.add("Row validation failed: " + validationResult.getErrors());
+                        System.out.println("User validation failed: " + validationResult.getErrors());
                     }
                 } catch (Exception e) {
                     errorCount++;
                     errors.add("Row processing error: " + e.getMessage());
+                    System.out.println("Exception during processing: " + e.getMessage());
+                    e.printStackTrace();
                 }
             }
             

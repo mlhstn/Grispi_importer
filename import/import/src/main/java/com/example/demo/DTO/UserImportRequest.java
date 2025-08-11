@@ -5,7 +5,7 @@ import java.util.Map;
 
 public class UserImportRequest {
     private List<Map<String, Object>> data; // Excel'den gelen satırlar
-    private Map<String, String> columnMappings; // Grispi field -> Excel column adı eşleşmesi
+    private List<Map<String, Object>> columnMappings; // Grispi field -> Excel column adı eşleşmesi
 
     public List<Map<String, Object>> getData() {
         return data;
@@ -15,11 +15,11 @@ public class UserImportRequest {
         this.data = data;
     }
 
-    public Map<String, String> getColumnMappings() {
+    public List<Map<String, Object>> getColumnMappings() {
         return columnMappings;
     }
 
-    public void setColumnMappings(Map<String, String> columnMappings) {
+    public void setColumnMappings(List<Map<String, Object>> columnMappings) {
         this.columnMappings = columnMappings;
     }
 }

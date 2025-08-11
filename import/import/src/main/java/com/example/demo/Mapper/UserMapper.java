@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.HashMap;
 
 @Component
 public class UserMapper {
@@ -24,8 +25,18 @@ public class UserMapper {
         this.organizationRepository = organizationRepository;
     }
 
-    public User mapWithMapping(Map<String, Object> row, Map<String, String> mapping) {
+    public User mapWithMapping(Map<String, Object> row, List<Map<String, Object>> mappings) {
         User user = new User();
+
+        // Mapping'den grispi field adlarını al
+        Map<String, String> fieldMapping = new HashMap<>();
+        for (Map<String, Object> mapping : mappings) {
+            String excelColumn = (String) mapping.get("excelColumn");
+            String grispiField = (String) mapping.get("grispiField");
+            if (excelColumn != null && grispiField != null) {
+                fieldMapping.put(grispiField, excelColumn);
+            }
+        }
 
         // ExternalId otomatik oluştur
         String externalId = getString(row, "externalId");
@@ -85,19 +96,33 @@ public class UserMapper {
 
         // Organization
         String orgExternalId = getString(row, "organization");
-        if (orgExternalId != null) {
+        if (orgExternalId != null && !orgExternalId.trim().isEmpty()) {
             Organization org = organizationRepository.findByExternalId(orgExternalId);
+            if (org == null) {
+                // Organization bulunamadıysa otomatik oluştur
+                org = new Organization();
+                org.setExternalId(orgExternalId);
+                org.setName(orgExternalId);
+                org = organizationRepository.save(org);
+            }
             user.setOrganization(org);
         }
 
         // Groups (boşluk ile ayrılmış isimler)
         String groupsStr = getString(row, "groups");
-        if (groupsStr != null) {
+        if (groupsStr != null && !groupsStr.trim().isEmpty()) {
             List<String> groupNames = Arrays.asList(groupsStr.split(" "));
             List<Group> groups = new ArrayList<>();
             for (String name : groupNames) {
-                Group group = groupRepository.findByName(name.trim());
-                if (group != null) {
+                String trimmedName = name.trim();
+                if (!trimmedName.isEmpty()) {
+                    Group group = groupRepository.findByName(trimmedName);
+                    if (group == null) {
+                        // Group bulunamadıysa otomatik oluştur
+                        group = new Group();
+                        group.setName(trimmedName);
+                        group = groupRepository.save(group);
+                    }
                     groups.add(group);
                 }
             }

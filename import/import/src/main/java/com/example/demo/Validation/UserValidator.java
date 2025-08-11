@@ -37,8 +37,17 @@ public class UserValidator {
             }
         }
 
-        if (!isBlank(user.getPhone()) && !PHONE_E164_REGEX.matcher(user.getPhone()).matches()) {
-            result.addError("Telefon E.164 formatında değil.");
+        if (!isBlank(user.getPhone())) {
+            String phone = user.getPhone();
+            // Eğer + ile başlamıyorsa ve 10 haneli ise +90 ekle
+            if (!phone.startsWith("+") && phone.length() == 10 && phone.matches("\\d{10}")) {
+                phone = "+90" + phone;
+                user.setPhone(phone);
+            }
+            
+            if (!PHONE_E164_REGEX.matcher(phone).matches()) {
+                result.addError("Telefon E.164 formatında değil: " + phone);
+            }
         }
 
         if (user.getRole() == null) {
