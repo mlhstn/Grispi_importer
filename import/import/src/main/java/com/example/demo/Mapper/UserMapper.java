@@ -56,12 +56,7 @@ public class UserMapper {
             user.setEmails(trimList(emails));
         }
 
-        // Phones (virgül ile ayrılmış)
-        String phonesStr = getString(row, "phones");
-        if (phonesStr != null && !phonesStr.isBlank()) {
-            List<String> phones = Arrays.asList(phonesStr.split(","));
-            user.setPhones(trimList(phones));
-        }
+
 
         // Tags (boşluk ile ayrılmış)
         String tagsStr = getString(row, "tags");

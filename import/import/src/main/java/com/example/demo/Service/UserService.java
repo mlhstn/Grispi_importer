@@ -50,6 +50,13 @@ public class UserService implements ImportService {
 
     // Yeni kullanıcı kaydet
     public User saveUser(User user) {
+        // External ID kontrolü - aynı ID varsa kaydetme
+        if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
+            Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
+            if (existingUser.isPresent()) {
+                throw new IllegalArgumentException("External ID zaten mevcut: " + user.getExternalId());
+            }
+        }
         return userRepository.save(user);
     }
 
@@ -83,6 +90,18 @@ public class UserService implements ImportService {
                     System.out.println("Processing row: " + row);
                     User user = userMapper.mapWithMapping(row, mappings);
                     System.out.println("Mapped user: " + user);
+                    
+                    // External ID kontrolü - aynı ID varsa kaydetme
+                    if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
+                        Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
+                        if (existingUser.isPresent()) {
+                            errorCount++;
+                            String errorMsg = "External ID zaten mevcut: " + user.getExternalId();
+                            errors.add(errorMsg);
+                            System.out.println("User skipped - " + errorMsg);
+                            continue; // Bu satırı atla, sonrakine geç
+                        }
+                    }
                     
                     UserValidationResult validationResult = userValidator.validate(user);
                     System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
@@ -131,6 +150,17 @@ public class UserService implements ImportService {
             Map<String, Object> row = data.get(i);
             try {
                 User user = createUserFromMap(row);
+                
+                // External ID kontrolü - aynı ID varsa kaydetme
+                if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
+                    Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
+                    if (existingUser.isPresent()) {
+                        result.setErrorCount(result.getErrorCount() + 1);
+                        result.getErrors().add("Satır " + (i + 1) + ": External ID zaten mevcut - " + user.getExternalId());
+                        continue; // Bu satırı atla, sonrakine geç
+                    }
+                }
+                
                 userRepository.save(user);
                 result.setSuccessCount(result.getSuccessCount() + 1);
             } catch (Exception e) {
@@ -190,14 +220,7 @@ public class UserService implements ImportService {
             }
         }
         
-        // Telefon listesi
-        if (data.containsKey("phones")) {
-            String phonesStr = (String) data.get("phones");
-            if (phonesStr != null && !phonesStr.trim().isEmpty()) {
-                List<String> phones = Arrays.asList(phonesStr.split(","));
-                user.setPhones(phones);
-            }
-        }
+
         
         // Dil
         if (data.containsKey("language")) {

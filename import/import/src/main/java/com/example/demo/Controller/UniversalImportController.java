@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import com.example.demo.Entity.enums.RequiredStatus;
 
 @RestController
 @RequestMapping("/api/import")
@@ -290,5 +291,93 @@ public class UniversalImportController {
             response.put("error", "Alan listesi alınırken hata oluştu: " + e.getMessage());
             return ResponseEntity.internalServerError().body(response);
         }
+    }
+
+    @GetMapping("/required-fields/{importType}")
+    public ResponseEntity<Map<String, Object>> getRequiredFields(@PathVariable String importType) {
+        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> requiredFields = new HashMap<>();
+        
+        switch (importType.toLowerCase()) {
+            case "user":
+                requiredFields.put("externalId", Map.of(
+                    "required", true,
+                    "description", "Kullanıcının benzersiz dış kimliği",
+                    "validation", "Boş olamaz"
+                ));
+                requiredFields.put("firstName", Map.of(
+                    "required", true,
+                    "description", "Kullanıcının adı",
+                    "validation", "Boş olamaz"
+                ));
+                requiredFields.put("lastName", Map.of(
+                    "required", true,
+                    "description", "Kullanıcının soyadı",
+                    "validation", "Boş olamaz"
+                ));
+                requiredFields.put("role", Map.of(
+                    "required", true,
+                    "description", "Kullanıcı rolü",
+                    "validation", "ADMIN, AGENT, CUSTOMER değerlerinden biri olmalı"
+                ));
+                break;
+                
+            case "organization":
+                requiredFields.put("externalId", Map.of(
+                    "required", true,
+                    "description", "Organizasyonun benzersiz dış kimliği",
+                    "validation", "Boş olamaz"
+                ));
+                requiredFields.put("name", Map.of(
+                    "required", true,
+                    "description", "Organizasyon adı",
+                    "validation", "Boş olamaz"
+                ));
+                break;
+                
+            case "ticket":
+                requiredFields.put("externalId", Map.of(
+                    "required", true,
+                    "description", "Biletin benzersiz dış kimliği",
+                    "validation", "Boş olamaz"
+                ));
+                break;
+                
+            case "group":
+                requiredFields.put("name", Map.of(
+                    "required", true,
+                    "description", "Grup adı",
+                    "validation", "Boş olamaz"
+                ));
+                break;
+                
+            case "customfield":
+                requiredFields.put("key", Map.of(
+                    "required", true,
+                    "description", "Alan anahtarı",
+                    "validation", "Boş olamaz"
+                ));
+                requiredFields.put("type", Map.of(
+                    "required", true,
+                    "description", "Alan tipi",
+                    "validation", "Geçerli bir tip olmalı"
+                ));
+                requiredFields.put("name", Map.of(
+                    "required", true,
+                    "description", "Alan adı",
+                    "validation", "Boş olamaz"
+                ));
+                break;
+                
+            default:
+                response.put("error", "Geçersiz import tipi: " + importType);
+                return ResponseEntity.badRequest().body(response);
+        }
+        
+        response.put("importType", importType);
+        response.put("requiredFields", requiredFields);
+        response.put("success", true);
+        
+        return ResponseEntity.ok(response);
     }
 }

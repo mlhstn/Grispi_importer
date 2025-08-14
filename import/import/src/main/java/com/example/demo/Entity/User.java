@@ -26,10 +26,7 @@ public class User {
     @Column(name = "email")
     private List<String> emails;
 
-    @ElementCollection
-    @CollectionTable(name = "user_phones", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "phone_number")
-    private List<String> phones;
+
 
     @ManyToOne
     @JoinColumn(name = "organization_id")
@@ -104,13 +101,7 @@ public class User {
         this.emails = emails;
     }
 
-    public List<String> getPhones() {
-        return phones;
-    }
 
-    public void setPhones(List<String> phones) {
-        this.phones = phones;
-    }
 
     public Organization getOrganization() {
         return organization;
@@ -162,7 +153,7 @@ public class User {
 
     public User(Long id, String externalId, String firstName,
                 String lastName, String phone, List<String> emails,
-                List<String> phones, Organization organization,
+                Organization organization,
                 Language language, List<String> tags,
                 List<Group> groups, Role role, boolean enabled) {
         this.id = id;
@@ -171,7 +162,6 @@ public class User {
         this.lastName = lastName;
         this.phone = phone;
         this.emails = emails;
-        this.phones = phones;
         this.organization = organization;
         this.language = language;
         this.tags = tags;
@@ -192,7 +182,6 @@ public class User {
                 ", lastName='" + lastName + '\'' +
                 ", phone='" + phone + '\'' +
                 ", emails=" + emails +
-                ", phones=" + phones +
                 ", organization=" + organization +
                 ", language=" + language +
                 ", tags=" + tags +

@@ -24,11 +24,6 @@ public class CustomFieldValidator {
             result.addError("Name boş olamaz.");
         }
 
-        // Permission kontrolü - Excel'de "Read-Write" formatında geliyor
-        if (field.getPermission() == null) {
-            result.addError("Permission boş olamaz.");
-        }
-
         return result;
     }
 }

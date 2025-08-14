@@ -24,7 +24,8 @@ public class ImportServiceFactory {
                                GroupService groupService,
                                CustomFieldService customFieldService) {
         serviceMap = new HashMap<>();
-        serviceMap.put("Contact", userService);
+        serviceMap.put("User", userService);
+        serviceMap.put("Contact", userService); // Geriye uyumluluk için
         serviceMap.put("Ticket", ticketService);
         serviceMap.put("Organization", organizationService);
         serviceMap.put("Group", groupService);
