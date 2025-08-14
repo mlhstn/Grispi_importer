@@ -1,0 +1,436 @@
+@import 'antd/dist/reset.css';
+
+/* ===== GRISPI RENK PALETİ - ELEGANT MOR ===== */
+:root {
+  /* Ana Renkler - Elegant Mor Paleti */
+  --grispi-primary: #6366f1;
+  --grispi-primary-dark: #4f46e5;
+  --grispi-primary-light: #818cf8;
+  --grispi-primary-hover: #5b21b6;
+  --grispi-primary-bright: #a5b4fc;
+  --grispi-primary-vivid: #7c3aed;
+  
+  /* Sidebar Renkleri - Deep Elegant */
+  --grispi-sidebar-bg: #1e1b4b;
+  --grispi-sidebar-border: #3730a3;
+  --grispi-sidebar-hover: #4c1d95;
+  --grispi-sidebar-active: #581c87;
+  
+  /* Durum Renkleri */
+  --grispi-success: #10b981;
+  --grispi-warning: #f59e0b;
+  --grispi-error: #ef4444;
+  --grispi-info: #3b82f6;
+  
+  /* Metin Renkleri */
+  --grispi-text-primary: #1f2937;
+  --grispi-text-secondary: #6b7280;
+  --grispi-text-light: #9ca3af;
+  --grispi-text-white: #ffffff;
+  
+  /* Arka Plan Renkleri */
+  --grispi-bg-primary: #ffffff;
+  --grispi-bg-secondary: #f9fafb;
+  --grispi-bg-light: #faf5ff;
+  
+  /* Border Renkleri */
+  --grispi-border: #e5e7eb;
+  --grispi-border-light: #f3f4f6;
+  --grispi-border-mor: #e9d5ff;
+  
+  /* Gölge Renkleri - Elegant Mor Tonları */
+  --grispi-shadow-primary: rgba(99, 102, 241, 0.35);
+  --grispi-shadow-focus: rgba(99, 102, 241, 0.25);
+  --grispi-shadow-bright: rgba(165, 180, 252, 0.3);
+  --grispi-shadow-card: rgba(0, 0, 0, 0.08);
+  --grispi-shadow-hover: rgba(0, 0, 0, 0.12);
+}
+
+/* ===== GENEL STİLLER ===== */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  color: var(--grispi-text-primary);
+  background-color: var(--grispi-bg-secondary);
+}
+
+/* ===== SIDEBAR STİLLERİ ===== */
+.ant-layout-sider {
+  background: linear-gradient(180deg, var(--grispi-sidebar-bg) 0%, var(--grispi-sidebar-active) 100%) !important;
+  border-right: 2px solid var(--grispi-sidebar-border) !important;
+  box-shadow: 4px 0 12px rgba(30, 27, 75, 0.3);
+  position: relative;
+}
+
+.ant-layout-sider::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--grispi-primary-bright) 0%, transparent 50%, var(--grispi-primary-bright) 100%);
+}
+
+.ant-menu-dark {
+  background: transparent !important;
+  border: none !important;
+}
+
+.ant-menu-dark .ant-menu-item {
+  margin: 4px 8px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+  border: 1px solid transparent !important;
+}
+
+.ant-menu-dark .ant-menu-item:hover {
+  background: linear-gradient(135deg, var(--grispi-sidebar-hover) 0%, var(--grispi-primary-dark) 100%) !important;
+  border-color: var(--grispi-primary-light) !important;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px var(--grispi-shadow-bright);
+}
+
+.ant-menu-dark .ant-menu-item-selected {
+  background: linear-gradient(135deg, var(--grispi-primary) 0%, var(--grispi-primary-bright) 100%) !important;
+  border-color: var(--grispi-primary-light) !important;
+  transform: translateX(6px);
+  box-shadow: 0 6px 16px var(--grispi-shadow-primary);
+}
+
+/* ===== HEADER STİLLERİ ===== */
+.ant-layout-header {
+  background: var(--grispi-bg-primary) !important;
+  border-bottom: 1px solid var(--grispi-border) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== STEPS STİLLERİ ===== */
+.ant-steps .ant-steps-item-process .ant-steps-item-icon {
+  background: var(--grispi-primary);
+  border-color: var(--grispi-primary);
+}
+
+.ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+  background: var(--grispi-success);
+  border-color: var(--grispi-success);
+}
+
+.ant-steps .ant-steps-item-finish .ant-steps-item-title,
+.ant-steps .ant-steps-item-process .ant-steps-item-title {
+  color: var(--grispi-primary);
+}
+
+/* ===== UPLOAD ALANI STİLLERİ ===== */
+.ant-upload-drag {
+  border: 2px dashed var(--grispi-primary) !important;
+  background: var(--grispi-bg-primary) !important;
+  border-radius: 12px !important;
+  transition: all 0.3s ease;
+}
+
+.ant-upload-drag:hover {
+  border-color: var(--grispi-primary-light) !important;
+  background: var(--grispi-bg-light) !important;
+}
+
+.ant-upload-drag .anticon {
+  color: var(--grispi-primary);
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+/* ===== BUTTON STİLLERİ ===== */
+.ant-btn-primary {
+  background: var(--grispi-primary) !important;
+  border-color: var(--grispi-primary) !important;
+  border-radius: 8px !important;
+  font-weight: 600 !important;
+  transition: all 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background: var(--grispi-primary-hover) !important;
+  border-color: var(--grispi-primary-hover) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px var(--grispi-shadow-primary);
+}
+
+.ant-btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ===== CARD STİLLERİ ===== */
+.ant-card {
+  border: 1px solid var(--grispi-border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 2px 8px var(--grispi-shadow-card) !important;
+  transition: all 0.3s ease;
+}
+
+.ant-card:hover {
+  box-shadow: 0 4px 16px var(--grispi-shadow-hover) !important;
+  transform: translateY(-2px);
+}
+
+.ant-card-head {
+  border-bottom: 1px solid var(--grispi-border-light) !important;
+  background: var(--grispi-bg-primary) !important;
+  border-radius: 12px 12px 0 0 !important;
+}
+
+.ant-card-head-title {
+  font-weight: 600 !important;
+  color: var(--grispi-text-primary) !important;
+}
+
+/* ===== TABLO STİLLERİ ===== */
+.ant-table {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.ant-table-thead > tr > th {
+  background: var(--grispi-bg-secondary) !important;
+  color: var(--grispi-text-primary) !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid var(--grispi-border) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: var(--grispi-bg-light) !important;
+}
+
+/* ===== SELECT STİLLERİ ===== */
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: var(--grispi-primary) !important;
+}
+
+.ant-select-focused .ant-select-selector {
+  border-color: var(--grispi-primary) !important;
+  box-shadow: 0 0 0 2px var(--grispi-shadow-focus) !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background: var(--grispi-bg-light) !important;
+  color: var(--grispi-primary) !important;
+}
+
+/* ===== MODAL STİLLERİ ===== */
+.ant-modal-header {
+  border-bottom: 1px solid var(--grispi-border-light) !important;
+  background: var(--grispi-bg-primary) !important;
+}
+
+.ant-modal-title {
+  color: var(--grispi-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.ant-modal-content {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+/* ===== MESSAGE STİLLERİ ===== */
+.ant-message-notice-content {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* ===== DROPDOWN STİLLERİ ===== */
+.ant-dropdown-menu {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid var(--grispi-border) !important;
+}
+
+.ant-dropdown-menu-item:hover {
+  background: var(--grispi-bg-light) !important;
+  color: var(--grispi-primary) !important;
+}
+
+/* ===== TYPOGRAPHY STİLLERİ ===== */
+.ant-typography h1,
+.ant-typography h2,
+.ant-typography h3,
+.ant-typography h4,
+.ant-typography h5,
+.ant-typography h6 {
+  color: var(--grispi-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.ant-typography h1 { font-size: 32px !important; line-height: 1.2 !important; }
+.ant-typography h2 { font-size: 28px !important; line-height: 1.3 !important; }
+.ant-typography h3 { font-size: 24px !important; line-height: 1.4 !important; }
+
+/* ===== STATISTIC STİLLERİ ===== */
+.ant-statistic-title {
+  color: var(--grispi-text-secondary) !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+.ant-statistic-content {
+  color: var(--grispi-text-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* ===== TAG STİLLERİ ===== */
+.ant-tag {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+}
+
+.ant-tag-blue {
+  background: var(--grispi-bg-light) !important;
+  border-color: var(--grispi-primary) !important;
+  color: var(--grispi-primary) !important;
+}
+
+/* ===== PROGRESS STİLLERİ ===== */
+.ant-progress-bg {
+  background: var(--grispi-primary) !important;
+}
+
+/* ===== FORM STİLLERİ ===== */
+.ant-form-item-label > label {
+  color: var(--grispi-text-primary) !important;
+  font-weight: 500 !important;
+}
+
+.ant-input:focus,
+.ant-input-focused {
+  border-color: var(--grispi-primary) !important;
+  box-shadow: 0 0 0 2px var(--grispi-shadow-focus) !important;
+}
+
+/* ===== CUSTOM SCROLLBAR ===== */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--grispi-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--grispi-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--grispi-text-light);
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+  .ant-layout-sider {
+    width: 200px !important;
+  }
+  
+  .ant-card {
+    margin-bottom: 16px;
+  }
+  
+  .ant-steps-item-title {
+    display: none;
+  }
+}
+
+/* ===== ANIMATION CLASSES ===== */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ===== LOADING STATES ===== */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  z-index: 10;
+}
+
+/* ===== DURUM KARTLARI ===== */
+.success-card {
+  border-color: var(--grispi-success) !important;
+  background: #f0fdf4 !important;
+}
+
+.success-card .ant-card-head {
+  background: #f0fdf4 !important;
+}
+
+.warning-card {
+  border-color: var(--grispi-warning) !important;
+  background: #fffbf0 !important;
+}
+
+.warning-card .ant-card-head {
+  background: #fffbf0 !important;
+}
+
+.error-card {
+  border-color: var(--grispi-error) !important;
+  background: #fef2f2 !important;
+}
+
+.error-card .ant-card-head {
+  background: #fef2f2 !important;
+}
+
+/* ===== ÖZEL SINIFLAR ===== */
+.grispi-mor-text {
+  color: var(--grispi-primary) !important;
+}
+
+.grispi-mor-bg {
+  background-color: var(--grispi-primary) !important;
+}
+
+.grispi-mor-border {
+  border-color: var(--grispi-primary) !important;
+}
+
+.grispi-sidebar-text {
+  color: var(--grispi-text-white) !important;
+}
+
+.grispi-info-card {
+  border: 1px solid var(--grispi-border-mor) !important;
+  background: var(--grispi-bg-light) !important;
+  border-radius: 12px !important;
+}
