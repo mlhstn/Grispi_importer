@@ -60,8 +60,30 @@ public class UserMapper {
             user.setPhone(phoneStr);
         }
 
-        // Emails (virgül ile ayrılmış)
+        // Emails (virgül ile ayrılmış) - farklı alan adlarını kontrol et
         String emailsStr = getString(row, "emails");
+        if (emailsStr == null || emailsStr.isBlank()) {
+            // Alternatif alan adlarını dene
+            emailsStr = getString(row, "email");
+            if (emailsStr == null || emailsStr.isBlank()) {
+                emailsStr = getString(row, "e-mail");
+            }
+            if (emailsStr == null || emailsStr.isBlank()) {
+                emailsStr = getString(row, "e_mail");
+            }
+            if (emailsStr == null || emailsStr.isBlank()) {
+                emailsStr = getString(row, "E-postalar");
+            }
+            if (emailsStr == null || emailsStr.isBlank()) {
+                emailsStr = getString(row, "E-posta");
+            }
+            if (emailsStr == null || emailsStr.isBlank()) {
+                emailsStr = getString(row, "Emails"); // Büyük E ile
+            }
+        }
+        
+        System.out.println("UserMapper - emailsStr: " + emailsStr + ", row keys: " + row.keySet());
+        
         if (emailsStr != null && !emailsStr.isBlank()) {
             List<String> emails = Arrays.asList(emailsStr.split(","));
             user.setEmails(trimList(emails));

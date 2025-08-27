@@ -57,7 +57,11 @@ public class UserService implements ImportService {
                 throw new IllegalArgumentException("External ID zaten mevcut: " + user.getExternalId());
             }
         }
-        return userRepository.save(user);
+        
+        System.out.println("Saving user with emails: " + user.getEmails());
+        User savedUser = userRepository.save(user);
+        System.out.println("User saved with ID: " + savedUser.getId() + ", emails: " + savedUser.getEmails());
+        return savedUser;
     }
 
     // Kullanıcı sil
@@ -91,6 +95,8 @@ public class UserService implements ImportService {
                  int actualRowNumber = i + 2;
                  try {
                      System.out.println("Processing row " + actualRowNumber + ": " + row);
+                     System.out.println("Row keys: " + row.keySet());
+                     System.out.println("Row emails value: " + row.get("emails"));
                      User user = userMapper.mapWithMapping(row, mappings);
                      System.out.println("Mapped user " + actualRowNumber + ": externalId=" + user.getExternalId() + 
                                       ", firstName=" + user.getFirstName() + 

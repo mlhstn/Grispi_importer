@@ -22,11 +22,15 @@ public class UserValidator {
                                (user.getEmails() != null && !user.getEmails().isEmpty()) ||
                                !isBlank(user.getPhone());
         
-        // Debug için log ekle
+        // Debug için detaylı log ekle
         System.out.println("Validation debug - externalId: " + user.getExternalId() + 
                           ", emails: " + user.getEmails() + 
                           ", phone: " + user.getPhone() + 
                           ", hasIdentifier: " + hasIdentifier);
+        System.out.println("Email list size: " + (user.getEmails() != null ? user.getEmails().size() : "null"));
+        if (user.getEmails() != null && !user.getEmails().isEmpty()) {
+            System.out.println("First email: " + user.getEmails().get(0));
+        }
         
         if (!hasIdentifier) {
             result.addError("En az bir tanımlayıcı alan gerekli: externalId, email veya telefon.");

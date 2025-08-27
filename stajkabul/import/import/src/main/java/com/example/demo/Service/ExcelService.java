@@ -182,6 +182,7 @@ public class ExcelService {
         for (List<String> row : excelData.getRows()) {
             Map<String, Object> transformedRow = new HashMap<>();
             
+            // Önce mapping'deki alanları ekle
             for (Map<String, Object> mapping : mappings) {
                 String excelColumn = (String) mapping.get("excelColumn");
                 String grispiField = (String) mapping.get("grispiField");
@@ -191,6 +192,31 @@ public class ExcelService {
                 if (columnIndex >= 0 && columnIndex < row.size()) {
                     String value = row.get(columnIndex);
                     transformedRow.put(grispiField, value);
+                }
+            }
+            
+            // Sonra mapping'de olmayan ama önemli alanları da ekle
+            for (int i = 0; i < excelData.getHeaders().size() && i < row.size(); i++) {
+                String header = excelData.getHeaders().get(i);
+                String value = row.get(i);
+                
+                // Mapping'de bu header yoksa ve önemli bir alansa ekle
+                boolean isMapped = mappings.stream()
+                    .anyMatch(mapping -> header.equals(mapping.get("excelColumn")));
+                
+                if (!isMapped && !transformedRow.containsKey(header)) {
+                    // Önemli alanları kontrol et (emails, phone, externalId, firstName, lastName, vb.)
+                    String lowerHeader = header.toLowerCase();
+                    if (lowerHeader.contains("email") || lowerHeader.contains("mail") ||
+                        lowerHeader.contains("phone") || lowerHeader.contains("tel") ||
+                        lowerHeader.contains("external") || lowerHeader.contains("id") ||
+                        lowerHeader.contains("first") || lowerHeader.contains("last") ||
+                        lowerHeader.contains("name") || lowerHeader.contains("role") ||
+                        lowerHeader.contains("language") || lowerHeader.contains("organization") ||
+                        lowerHeader.contains("group") || lowerHeader.contains("tag") ||
+                        lowerHeader.contains("enabled")) {
+                        transformedRow.put(header, value);
+                    }
                 }
             }
             
