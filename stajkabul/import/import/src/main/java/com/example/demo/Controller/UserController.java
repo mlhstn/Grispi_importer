@@ -61,7 +61,8 @@ public class UserController {
     public ResponseEntity<UserImportResponse> importMappedUsers(@RequestBody UserImportRequest request) {
         UserImportResponse response = new UserImportResponse();
 
-        for (Map<String, Object> row : request.getData()) {
+        for (int i = 0; i < request.getData().size(); i++) {
+            Map<String, Object> row = request.getData().get(i);
             User user = userMapper.mapWithMapping(row, request.getColumnMappings());
             UserValidationResult validationResult = userValidator.validate(user);
 
@@ -70,6 +71,8 @@ public class UserController {
                 response.getSavedUsers().add(user.getExternalId());
             } else {
                 validationResult.setUserIdentifier(user.getExternalId());
+                validationResult.setRowNumber(i + 1); // Excel satır numarası (1'den başlar)
+                validationResult.setOriginalData(row);
                 response.getFailedUsers().add(validationResult);
             }
         }

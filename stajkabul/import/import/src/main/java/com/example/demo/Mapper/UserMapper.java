@@ -10,7 +10,6 @@ import com.example.demo.Repository.OrganizationRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.HashMap;
 
 @Component
@@ -18,7 +17,6 @@ public class UserMapper {
 
     private final GroupRepository groupRepository;
     private final OrganizationRepository organizationRepository;
-    private final AtomicInteger userCounter = new AtomicInteger(1);
 
     public UserMapper(GroupRepository groupRepository, OrganizationRepository organizationRepository) {
         this.groupRepository = groupRepository;
@@ -38,16 +36,29 @@ public class UserMapper {
             }
         }
 
-        // ExternalId otomatik oluştur
+        // ExternalId - boşsa null bırak
         String externalId = getString(row, "externalId");
-        if (externalId == null || externalId.trim().isEmpty()) {
-            externalId = "USR" + String.format("%03d", userCounter.getAndIncrement());
-        }
         user.setExternalId(externalId);
         
         user.setFirstName(getString(row, "firstName"));
         user.setLastName(getString(row, "lastName"));
-        user.setPhone(getString(row, "phone"));
+        
+        // Telefon numarasını parse et
+        String phoneStr = getString(row, "phone");
+        if (phoneStr != null && !phoneStr.trim().isEmpty()) {
+            // Bilimsel notasyon formatını kontrol et (örn: 5.952159955E9)
+            if (phoneStr.contains("E") || phoneStr.contains("e")) {
+                try {
+                    double phoneNumber = Double.parseDouble(phoneStr);
+                    // Sayıyı long'a çevir ve string'e dönüştür
+                    long phoneLong = (long) phoneNumber;
+                    phoneStr = String.valueOf(phoneLong);
+                } catch (NumberFormatException e) {
+                    // Parse edilemezse orijinal değeri kullan
+                }
+            }
+            user.setPhone(phoneStr);
+        }
 
         // Emails (virgül ile ayrılmış)
         String emailsStr = getString(row, "emails");

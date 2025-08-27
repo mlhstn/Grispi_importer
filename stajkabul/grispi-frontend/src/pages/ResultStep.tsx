@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic } from 'antd';
-import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic, Table, Tag, Collapse } from 'antd';
+import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import { MappingField, ImportType } from '../types';
 import { apiService } from '../services/api';
 
+interface ErrorDetail {
+  rowNumber: number;
+  userIdentifier: string;
+  originalData: Record<string, any>;
+  errors: string[];
+}
+
 const { Title, Text } = Typography;
+const { Panel } = Collapse;
 
 interface ResultStepProps {
   importType: ImportType;
@@ -88,7 +96,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
       console.log('API response:', response);
 
       if (response.success) {
-        setImportResult(response.data);
+        setImportResult(response.data || response);
         message.success(`${importType} verileri başarıyla veritabanına kaydedildi!`);
         setImportModalVisible(false);
       } else {
@@ -165,6 +173,107 @@ const ResultStep: React.FC<ResultStepProps> = ({
               />
             </Col>
           </Row>
+        </Card>
+      )}
+
+      {/* Hata Detayları */}
+      {importResult && importResult.errorCount > 0 && (
+        <Card 
+          title={
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <ExclamationCircleOutlined style={{ color: '#ef4444' }} />
+              <span>Hata Detayları ({importResult.errorCount} kayıt)</span>
+            </div>
+          }
+          style={{ 
+            marginBottom: '24px', 
+            border: '1px solid #fecaca',
+            backgroundColor: '#fef2f2',
+            borderRadius: '12px'
+          }}
+        >
+          <Collapse 
+            ghost 
+            style={{ backgroundColor: 'transparent' }}
+            expandIconPosition="end"
+          >
+            <Panel 
+              header={
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <Text strong style={{ color: '#dc2626' }}>
+                    Başarısız Kayıtları Göster
+                  </Text>
+                  <Tag color="red">{importResult.errorCount}</Tag>
+                </div>
+              } 
+              key="1"
+            >
+                             <Table<ErrorDetail>
+                 dataSource={importResult.errors || []}
+                 pagination={{ pageSize: 10 }}
+                 size="small"
+                 scroll={{ x: true }}
+                columns={[
+                  {
+                    title: 'Satır No',
+                    dataIndex: 'rowNumber',
+                    key: 'rowNumber',
+                    width: 80,
+                    render: (rowNumber) => (
+                      <Tag color="red">Satır {rowNumber}</Tag>
+                    )
+                  },
+                  {
+                    title: 'Tanımlayıcı',
+                    dataIndex: 'userIdentifier',
+                    key: 'userIdentifier',
+                    width: 120,
+                    render: (identifier) => (
+                      <Text code>{identifier || 'Yok'}</Text>
+                    )
+                  },
+                  {
+                    title: 'Orijinal Veri',
+                    dataIndex: 'originalData',
+                    key: 'originalData',
+                    render: (originalData) => (
+                      <div style={{ maxWidth: '300px' }}>
+                        {originalData && Object.entries(originalData).map(([key, value]) => (
+                          <div key={key} style={{ marginBottom: '4px' }}>
+                            <Text strong style={{ fontSize: '11px', color: '#6b7280' }}>
+                              {key}:
+                            </Text>
+                            <Text style={{ fontSize: '11px', marginLeft: '4px' }}>
+                              {String(value || '')}
+                            </Text>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  },
+                  {
+                    title: 'Hata Mesajları',
+                    dataIndex: 'errors',
+                    key: 'errors',
+                    render: (errors) => (
+                      <div>
+                        {errors && errors.map((error: string, index: number) => (
+                          <Tag 
+                            key={index} 
+                            color="red" 
+                            style={{ marginBottom: '4px', fontSize: '11px' }}
+                          >
+                            {error}
+                          </Tag>
+                        ))}
+                      </div>
+                    )
+                  }
+                ]}
+                rowKey={(record) => `${record.rowNumber}-${record.userIdentifier}`}
+              />
+            </Panel>
+          </Collapse>
         </Card>
       )}
 

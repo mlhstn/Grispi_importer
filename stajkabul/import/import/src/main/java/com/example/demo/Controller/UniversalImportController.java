@@ -301,9 +301,19 @@ public class UniversalImportController {
         switch (importType.toLowerCase()) {
             case "user":
                 requiredFields.put("externalId", Map.of(
-                    "required", true,
-                    "description", "Kullanıcının benzersiz dış kimliği",
-                    "validation", "Boş olamaz"
+                    "required", false,
+                    "description", "Kullanıcının benzersiz dış kimliği (en az bir tanımlayıcı gerekli)",
+                    "validation", "externalId, email veya telefondan en az biri gerekli"
+                ));
+                requiredFields.put("emails", Map.of(
+                    "required", false,
+                    "description", "Kullanıcı email adresleri (en az bir tanımlayıcı gerekli)",
+                    "validation", "externalId, email veya telefondan en az biri gerekli"
+                ));
+                requiredFields.put("phone", Map.of(
+                    "required", false,
+                    "description", "Kullanıcı telefon numarası (en az bir tanımlayıcı gerekli)",
+                    "validation", "externalId, email veya telefondan en az biri gerekli"
                 ));
                 requiredFields.put("firstName", Map.of(
                     "required", true,

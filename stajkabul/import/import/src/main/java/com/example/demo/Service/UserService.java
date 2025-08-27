@@ -83,51 +83,115 @@ public class UserService implements ImportService {
             
             int successCount = 0;
             int errorCount = 0;
-            List<String> errors = new ArrayList<>();
+            List<Map<String, Object>> errorDetails = new ArrayList<>();
             
-            for (Map<String, Object> row : transformedData) {
-                try {
-                    System.out.println("Processing row: " + row);
-                    User user = userMapper.mapWithMapping(row, mappings);
-                    System.out.println("Mapped user: " + user);
-                    
-                    // External ID kontrolü - aynı ID varsa kaydetme
-                    if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
-                        Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
-                        if (existingUser.isPresent()) {
-                            errorCount++;
-                            String errorMsg = "External ID zaten mevcut: " + user.getExternalId();
-                            errors.add(errorMsg);
-                            System.out.println("User skipped - " + errorMsg);
-                            continue; // Bu satırı atla, sonrakine geç
-                        }
-                    }
-                    
-                    UserValidationResult validationResult = userValidator.validate(user);
-                    System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
-                    
-                    if (validationResult.isValid()) {
-                        saveUser(user);
-                        successCount++;
-                        System.out.println("User saved successfully: " + user.getExternalId());
-                    } else {
-                        errorCount++;
-                        errors.add("Row validation failed: " + validationResult.getErrors());
-                        System.out.println("User validation failed: " + validationResult.getErrors());
-                    }
-                } catch (Exception e) {
-                    errorCount++;
-                    errors.add("Row processing error: " + e.getMessage());
-                    System.out.println("Exception during processing: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
+                         for (int i = 0; i < transformedData.size(); i++) {
+                 Map<String, Object> row = transformedData.get(i);
+                 // Excel'de header satırı olduğu için +2 yapıyoruz (header + 1-based indexing)
+                 int actualRowNumber = i + 2;
+                 try {
+                     System.out.println("Processing row " + actualRowNumber + ": " + row);
+                     User user = userMapper.mapWithMapping(row, mappings);
+                     System.out.println("Mapped user " + actualRowNumber + ": externalId=" + user.getExternalId() + 
+                                      ", firstName=" + user.getFirstName() + 
+                                      ", lastName=" + user.getLastName() + 
+                                      ", phone=" + user.getPhone() + 
+                                      ", emails=" + user.getEmails());
+                     
+                     // External ID kontrolü - aynı ID varsa kaydetme
+                     if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
+                         Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
+                         if (existingUser.isPresent()) {
+                             errorCount++;
+                             Map<String, Object> errorDetail = new HashMap<>();
+                             errorDetail.put("rowNumber", actualRowNumber);
+                             errorDetail.put("userIdentifier", user.getExternalId());
+                             errorDetail.put("originalData", row);
+                             errorDetail.put("errors", Arrays.asList("External ID zaten mevcut: " + user.getExternalId()));
+                             errorDetails.add(errorDetail);
+                             System.out.println("User skipped - External ID already exists: " + user.getExternalId());
+                             continue; // Bu satırı atla, sonrakine geç
+                         }
+                     }
+                     
+                     // Telefon kontrolü - aynı telefon varsa kaydetme
+                     if (user.getPhone() != null && !user.getPhone().trim().isEmpty()) {
+                         Optional<User> existingUserByPhone = userRepository.findByPhone(user.getPhone());
+                         if (existingUserByPhone.isPresent()) {
+                             errorCount++;
+                             Map<String, Object> errorDetail = new HashMap<>();
+                             errorDetail.put("rowNumber", actualRowNumber);
+                             errorDetail.put("userIdentifier", user.getExternalId() != null ? user.getExternalId() : user.getPhone());
+                             errorDetail.put("originalData", row);
+                             errorDetail.put("errors", Arrays.asList("Telefon numarası zaten mevcut: " + user.getPhone()));
+                             errorDetails.add(errorDetail);
+                             System.out.println("User skipped - Phone already exists: " + user.getPhone());
+                             continue; // Bu satırı atla, sonrakine geç
+                         }
+                     }
+                     
+                     // Email kontrolü - aynı email varsa kaydetme
+                     if (user.getEmails() != null && !user.getEmails().isEmpty()) {
+                         boolean emailExists = false;
+                         String existingEmail = null;
+                         for (String email : user.getEmails()) {
+                             if (email != null && !email.trim().isEmpty()) {
+                                 Optional<User> existingUserByEmail = userRepository.findByEmailsContaining(email);
+                                 if (existingUserByEmail.isPresent()) {
+                                     emailExists = true;
+                                     existingEmail = email;
+                                     break; // İlk bulunan email için dur
+                                 }
+                             }
+                         }
+                         if (emailExists) {
+                             errorCount++;
+                             Map<String, Object> errorDetail = new HashMap<>();
+                             errorDetail.put("rowNumber", actualRowNumber);
+                             errorDetail.put("userIdentifier", user.getExternalId() != null ? user.getExternalId() : existingEmail);
+                             errorDetail.put("originalData", row);
+                             errorDetail.put("errors", Arrays.asList("Email adresi zaten mevcut: " + existingEmail));
+                             errorDetails.add(errorDetail);
+                             System.out.println("User skipped - Email already exists: " + existingEmail);
+                             continue; // Bu satırı atla, sonrakine geç
+                         }
+                     }
+                     
+                     UserValidationResult validationResult = userValidator.validate(user);
+                     System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
+                     
+                     if (validationResult.isValid()) {
+                         saveUser(user);
+                         successCount++;
+                         System.out.println("User saved successfully: " + user.getExternalId());
+                     } else {
+                         errorCount++;
+                         Map<String, Object> errorDetail = new HashMap<>();
+                         errorDetail.put("rowNumber", actualRowNumber);
+                         errorDetail.put("userIdentifier", user.getExternalId());
+                         errorDetail.put("originalData", row);
+                         errorDetail.put("errors", validationResult.getErrors());
+                         errorDetails.add(errorDetail);
+                         System.out.println("User validation failed: " + validationResult.getErrors());
+                     }
+                 } catch (Exception e) {
+                     errorCount++;
+                     Map<String, Object> errorDetail = new HashMap<>();
+                     errorDetail.put("rowNumber", actualRowNumber);
+                     errorDetail.put("userIdentifier", "Unknown");
+                     errorDetail.put("originalData", row);
+                     errorDetail.put("errors", Arrays.asList("Row processing error: " + e.getMessage()));
+                     errorDetails.add(errorDetail);
+                     System.out.println("Exception during processing: " + e.getMessage());
+                     e.printStackTrace();
+                 }
+             }
             
             result.put("success", true);
             result.put("totalRecords", transformedData.size());
             result.put("successCount", successCount);
             result.put("errorCount", errorCount);
-            result.put("errors", errors);
+            result.put("errors", errorDetails);
             
         } catch (Exception e) {
             result.put("success", false);

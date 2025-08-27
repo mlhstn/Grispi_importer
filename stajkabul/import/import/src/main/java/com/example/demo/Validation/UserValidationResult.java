@@ -2,13 +2,14 @@ package com.example.demo.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class UserValidationResult {
     private boolean valid;
     private List<String> errors;
-
-
     private String userIdentifier;
+    private Integer rowNumber; // Excel satır numarası
+    private Map<String, Object> originalData; // Orijinal Excel verisi
 
     public UserValidationResult() {
         this.valid = true;
@@ -34,5 +35,21 @@ public class UserValidationResult {
 
     public String getUserIdentifier() {
         return userIdentifier;
+    }
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    public Map<String, Object> getOriginalData() {
+        return originalData;
+    }
+
+    public void setOriginalData(Map<String, Object> originalData) {
+        this.originalData = originalData;
     }
 }

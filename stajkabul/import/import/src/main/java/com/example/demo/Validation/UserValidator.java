@@ -17,8 +17,19 @@ public class UserValidator {
     public UserValidationResult validate(User user) {
         UserValidationResult result = new UserValidationResult();
 
-        if (isBlank(user.getExternalId())) {
-            result.addError("externalId boş olamaz.");
+        // En az bir tanımlayıcı alan gerekli (externalId, email veya telefon)
+        boolean hasIdentifier = !isBlank(user.getExternalId()) || 
+                               (user.getEmails() != null && !user.getEmails().isEmpty()) ||
+                               !isBlank(user.getPhone());
+        
+        // Debug için log ekle
+        System.out.println("Validation debug - externalId: " + user.getExternalId() + 
+                          ", emails: " + user.getEmails() + 
+                          ", phone: " + user.getPhone() + 
+                          ", hasIdentifier: " + hasIdentifier);
+        
+        if (!hasIdentifier) {
+            result.addError("En az bir tanımlayıcı alan gerekli: externalId, email veya telefon.");
         }
 
         if (isBlank(user.getFirstName())) {
