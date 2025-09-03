@@ -30,7 +30,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
   const [requiredFields, setRequiredFields] = useState<Record<string, any>>({});
   const grispiFields = GRISPI_FIELDS[importType as keyof typeof GRISPI_FIELDS] || [];
 
-  // Zorunlu alanların mapping durumunu hesapla
+      // Calculate mapping status of required fields
   const requiredFieldMappings = Object.entries(requiredFields)
     .filter(([fieldName, fieldInfo]) => fieldInfo.required)
     .map(([fieldName]) => fieldName);
@@ -85,7 +85,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
         setRequiredFields(response.data.requiredFields || {});
       }
     } catch (error) {
-      console.error('Zorunlu alanlar yüklenirken hata:', error);
+      console.error('Error loading required fields:', error);
     }
   };
 
@@ -120,13 +120,12 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
     try {
       setLoading(true);
-      const mappedFields = Object.entries(mappings)
-        .filter(([_, grispiField]) => grispiField !== '')
-        .map(([excelColumn, grispiField]) => ({
-          excelColumn,
-          grispiField,
-          sampleData: getSampleData(excelColumn)
-        }));
+             const mappedFields = Object.entries(mappings)
+         .filter(([_, grispiField]) => grispiField !== '')
+         .map(([excelColumn, grispiField]) => ({
+           excelColumn,
+           grispiField
+         }));
 
       const templateData = {
         name: templateName,
@@ -184,26 +183,22 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
 
 
-  const handleContinue = () => {
-    const mappedFields = Object.entries(mappings)
-      .filter(([_, grispiField]) => grispiField !== '')
-      .map(([excelColumn, grispiField]) => {
-        const columnIndex = data.headers.indexOf(excelColumn);
-        const sampleData = data.rows.slice(0, 2).map((row: string[]) => row[columnIndex] || '');
-        
-        return {
-          excelColumn,
-          grispiField,
-          sampleData
-        };
-      });
+     const handleContinue = () => {
+     const mappedFields = Object.entries(mappings)
+       .filter(([_, grispiField]) => grispiField !== '')
+       .map(([excelColumn, grispiField]) => {
+         return {
+           excelColumn,
+           grispiField
+         };
+       });
 
     if (mappedFields.length === 0) {
-      message.warning('En az bir alan eşleştirmeniz gerekiyor!');
+      message.warning('You need to map at least one field!');
       return;
     }
 
-    // Validation kontrolü - zorunlu alanların mapping yapılıp yapılmadığını kontrol et
+    // Validation check - check if required fields are mapped
     const requiredFieldMappings = Object.entries(requiredFields)
       .filter(([fieldName, fieldInfo]) => fieldInfo.required)
       .map(([fieldName]) => fieldName);
@@ -222,8 +217,8 @@ const MappingStep: React.FC<MappingStepProps> = ({
       );
       
       message.error(
-        `Zorunlu alanlar eksik: ${missingFieldLabels.join(', ')}. ` +
-        'Lütfen tüm zorunlu alanları eşleştirin.'
+        `Required fields missing: ${missingFieldLabels.join(', ')}. ` +
+        'Please map all required fields.'
       );
       return;
     }
@@ -231,10 +226,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
     onMappingComplete(mappedFields);
   };
 
-  const getSampleData = (columnName: string): string[] => {
-    const columnIndex = data.headers.indexOf(columnName);
-    return data.rows.slice(0, 2).map((row: string[]) => row[columnIndex] || '');
-  };
+
 
 
   return (
@@ -351,7 +343,6 @@ const MappingStep: React.FC<MappingStepProps> = ({
           <MappingRow
             key={header}
             excelColumn={header}
-            sampleData={getSampleData(header)}
             grispiFields={grispiFields}
             selectedField={mappings[header] || ''}
             onFieldChange={(value) => handleFieldChange(header, value)}
@@ -367,17 +358,17 @@ const MappingStep: React.FC<MappingStepProps> = ({
            size="large" 
            onClick={handleContinue}
            icon={<ArrowRightOutlined />}
-           disabled={mappedCount === 0 || requiredFieldsProgress < 100}
+           disabled={mappedCount === 0}
            style={{
-             backgroundColor: requiredFieldsProgress === 100 ? '#9b51e0' : '#d1d5db',
-             borderColor: requiredFieldsProgress === 100 ? '#9b51e0' : '#d1d5db',
+             backgroundColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
+             borderColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
              borderRadius: '8px',
              padding: '0 32px',
              height: '48px',
              fontSize: '16px'
            }}
          >
-           {requiredFieldsProgress === 100 ? 'Continue to Summary' : `Required Fields (${mappedRequiredFields.length}/${requiredFieldMappings.length})`}
+           {requiredFieldMappings.length === 0 ? 'Continue to Summary' : (requiredFieldsProgress === 100 ? 'Continue to Summary' : `Required Fields (${mappedRequiredFields.length}/${requiredFieldMappings.length})`)}
          </Button>
       </div>
 

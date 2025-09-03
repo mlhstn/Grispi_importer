@@ -38,7 +38,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload }) => {
         message.error(`Backend hatası: ${response.error}`);
       }
     } catch (error) {
-      message.error('Backend bağlantısı başarısız! Dosya yerel olarak işlenecek.');
+              message.error('Backend connection failed! File will be processed locally.');
       onFileUpload(file, importType); // Fallback to local processing
     } finally {
       setLoading(false);

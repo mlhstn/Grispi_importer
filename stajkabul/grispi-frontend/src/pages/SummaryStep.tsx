@@ -92,10 +92,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
               <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <div>
                   <Text strong style={{ color: '#1f2937' }}>{mapping.excelColumn}</Text>
-                  <br />
-                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Sample: {mapping.sampleData.slice(0, 2).join(', ')}
-                  </Text>
+
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <Tag color="blue" style={{ marginRight: '8px' }}>→</Tag>

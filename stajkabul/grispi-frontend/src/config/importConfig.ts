@@ -70,17 +70,17 @@ export const IMPORT_CONFIG: ImportConfig = {
           value: 'firstName',
           label: 'Ad',
           type: 'string',
-          required: true,
+          required: false,
           validation: { min: 2, max: 50 },
-          description: 'Kullanıcının adı (zorunlu)'
+          description: 'Kullanıcının adı (opsiyonel)'
         },
         {
           value: 'lastName',
           label: 'Soyad',
           type: 'string',
-          required: true,
+          required: false,
           validation: { min: 2, max: 50 },
-          description: 'Kullanıcının soyadı (zorunlu)'
+          description: 'Kullanıcının soyadı (opsiyonel)'
         },
         {
           value: 'phone',
@@ -116,7 +116,7 @@ export const IMPORT_CONFIG: ImportConfig = {
           value: 'role',
           label: 'Rol',
           type: 'enum',
-          required: true,
+          required: false,
           validation: { options: ['ADMIN', 'AGENT', 'CUSTOMER'] },
           description: 'Kullanıcı rolü (varsayılan: CUSTOMER)'
         },
@@ -171,9 +171,9 @@ export const IMPORT_CONFIG: ImportConfig = {
           value: 'name',
           label: 'Organizasyon Adı',
           type: 'string',
-          required: true,
+          required: false,
           validation: { min: 2, max: 100 },
-          description: 'Organizasyon adı (zorunlu)'
+          description: 'Organizasyon adı (opsiyonel)'
         },
         {
           value: 'description',
@@ -386,23 +386,23 @@ export const IMPORT_CONFIG: ImportConfig = {
           value: 'key',
           label: 'Anahtar',
           type: 'string',
-          required: true,
-          description: 'Alan anahtarı (zorunlu)'
+          required: false,
+          description: 'Alan anahtarı (opsiyonel)'
         },
         {
           value: 'type',
           label: 'Tip',
           type: 'enum',
-          required: true,
+          required: false,
           validation: { options: ['TEXT', 'NUMBER', 'DATE', 'CHECKBOX', 'DROPDOWN'] },
-          description: 'Alan tipi (zorunlu)'
+          description: 'Alan tipi (opsiyonel)'
         },
         {
           value: 'name',
           label: 'Ad',
           type: 'string',
-          required: true,
-          description: 'Alan adı (zorunlu)'
+          required: false,
+          description: 'Alan adı (opsiyonel)'
         },
         {
           value: 'description',

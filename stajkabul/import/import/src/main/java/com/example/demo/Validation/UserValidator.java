@@ -33,21 +33,21 @@ public class UserValidator {
         }
         
         if (!hasIdentifier) {
-            result.addError("En az bir tanımlayıcı alan gerekli: externalId, email veya telefon.");
+            result.addError("At least one identifier field is required: externalId, email or phone.");
         }
 
         if (isBlank(user.getFirstName())) {
-            result.addError("First name boş olamaz.");
+            result.addError("First name cannot be empty.");
         }
 
         if (isBlank(user.getLastName())) {
-            result.addError("Last name boş olamaz.");
+            result.addError("Last name cannot be empty.");
         }
 
         if (user.getEmails() != null) {
             for (String email : user.getEmails()) {
                 if (!EMAIL_REGEX.matcher(email).matches()) {
-                    result.addError("Geçersiz email: " + email);
+                    result.addError("Invalid email: " + email);
                 }
             }
         }
@@ -61,12 +61,12 @@ public class UserValidator {
             }
             
             if (!PHONE_E164_REGEX.matcher(phone).matches()) {
-                result.addError("Telefon E.164 formatında değil: " + phone);
+                result.addError("Phone is not in E.164 format: " + phone);
             }
         }
 
         if (user.getRole() == null) {
-            result.addError("Role boş olamaz. Beklenen: ADMIN, AGENT, CUSTOMER");
+            result.addError("Role cannot be empty. Expected: ADMIN, AGENT, CUSTOMER");
         }
 
         return result;

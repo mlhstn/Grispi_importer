@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Arrays;
 
 @Service
 public class OrganizationService implements ImportService {
@@ -45,6 +46,17 @@ public class OrganizationService implements ImportService {
     }
 
     public Organization saveOrganization(Organization organization) {
+        // Duplicate externalId kontrolü
+        if (organization.getExternalId() != null) {
+            Optional<Organization> existingOrganization = organizationRepository.findAll().stream()
+                .filter(o -> organization.getExternalId().equals(o.getExternalId()))
+                .findFirst();
+            
+            if (existingOrganization.isPresent()) {
+                throw new IllegalArgumentException("Organization with externalId " + organization.getExternalId() + " already exists");
+            }
+        }
+        
         return organizationRepository.save(organization);
     }
 
@@ -121,11 +133,35 @@ public class OrganizationService implements ImportService {
             int errorCount = 0;
             List<String> errors = new ArrayList<>();
             
-            for (Map<String, Object> row : transformedData) {
+            List<Map<String, Object>> errorDetails = new ArrayList<>();
+            
+            for (int i = 0; i < transformedData.size(); i++) {
+                Map<String, Object> row = transformedData.get(i);
                 try {
                     System.out.println("OrganizationService - Processing row: " + row);
                     Organization organization = organizationMapper.mapWithMapping(row, columnMappings);
                     System.out.println("OrganizationService - Mapped organization: " + organization.getExternalId() + ", " + organization.getName());
+                    
+                    // Duplicate externalId kontrolü
+                    if (organization.getExternalId() != null) {
+                        Optional<Organization> existingOrganization = organizationRepository.findAll().stream()
+                            .filter(o -> organization.getExternalId().equals(o.getExternalId()))
+                            .findFirst();
+                        
+                        if (existingOrganization.isPresent()) {
+                            errorCount++;
+                            errors.add("Row " + (i + 1) + ": Duplicate externalId: " + organization.getExternalId());
+                            
+                            Map<String, Object> errorDetail = new HashMap<>();
+                            errorDetail.put("rowNumber", i + 1);
+                            errorDetail.put("originalData", row);
+                            errorDetail.put("errors", List.of("Duplicate externalId: " + organization.getExternalId()));
+                            errorDetails.add(errorDetail);
+                            
+                            System.out.println("OrganizationService - Duplicate externalId: " + organization.getExternalId());
+                            continue;
+                        }
+                    }
                     
                     OrganizationValidationResult validationResult = organizationValidator.validate(organization);
                     System.out.println("OrganizationService - Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
@@ -136,22 +172,38 @@ public class OrganizationService implements ImportService {
                         System.out.println("OrganizationService - Saved successfully: " + organization.getExternalId());
                     } else {
                         errorCount++;
-                        errors.add("Row validation failed: " + validationResult.getErrors());
+                        errors.add("Row " + (i + 1) + " validation failed: " + String.join(", ", validationResult.getErrors()));
+                        
+                        // Detaylı hata bilgisi ekle
+                        Map<String, Object> errorDetail = new HashMap<>();
+                        errorDetail.put("rowNumber", i + 1);
+                        errorDetail.put("originalData", row);
+                        errorDetail.put("errors", validationResult.getErrors());
+                        errorDetails.add(errorDetail);
+                        
                         System.out.println("OrganizationService - Validation failed: " + validationResult.getErrors());
                     }
                 } catch (Exception e) {
                     errorCount++;
-                    errors.add("Row processing error: " + e.getMessage());
+                    errors.add("Row " + (i + 1) + " processing error: " + e.getMessage());
+                    
+                    // Detaylı hata bilgisi ekle
+                    Map<String, Object> errorDetail = new HashMap<>();
+                    errorDetail.put("rowNumber", i + 1);
+                    errorDetail.put("originalData", row);
+                                             errorDetail.put("errors", List.of("Processing error: " + e.getMessage()));
+                    errorDetails.add(errorDetail);
+                    
                     System.out.println("OrganizationService - Exception: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
             
-            result.put("success", true);
-            result.put("totalRecords", transformedData.size());
-            result.put("successCount", successCount);
-            result.put("errorCount", errorCount);
-            result.put("errors", errors);
+                         result.put("success", true);
+             result.put("totalRecords", transformedData.size());
+             result.put("successCount", successCount);
+             result.put("errorCount", errorCount);
+             result.put("errors", errorDetails);
             
         } catch (Exception e) {
             result.put("success", false);

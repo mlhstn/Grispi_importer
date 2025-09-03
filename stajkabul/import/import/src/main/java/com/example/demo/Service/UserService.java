@@ -50,13 +50,15 @@ public class UserService implements ImportService {
 
     // Yeni kullanıcı kaydet
     public User saveUser(User user) {
-        // External ID kontrolü - aynı ID varsa kaydetme
+        // Sadece External ID kontrolü - aynı ID varsa kaydetme
         if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
             Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
             if (existingUser.isPresent()) {
                 throw new IllegalArgumentException("External ID zaten mevcut: " + user.getExternalId());
             }
         }
+        
+        // Email ve telefon duplicate kontrolü kaldırıldı - artık kayıt edilebilir
         
         System.out.println("Saving user with emails: " + user.getEmails());
         User savedUser = userRepository.save(user);
@@ -109,59 +111,17 @@ public class UserService implements ImportService {
                          Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
                          if (existingUser.isPresent()) {
                              errorCount++;
-                             Map<String, Object> errorDetail = new HashMap<>();
-                             errorDetail.put("rowNumber", actualRowNumber);
-                             errorDetail.put("userIdentifier", user.getExternalId());
-                             errorDetail.put("originalData", row);
-                             errorDetail.put("errors", Arrays.asList("External ID zaten mevcut: " + user.getExternalId()));
-                             errorDetails.add(errorDetail);
+                                                      Map<String, Object> errorDetail = new HashMap<>();
+                         errorDetail.put("rowNumber", actualRowNumber);
+                         errorDetail.put("originalData", row);
+                         errorDetail.put("errors", List.of("External ID already exists: " + user.getExternalId()));
+                         errorDetails.add(errorDetail);
                              System.out.println("User skipped - External ID already exists: " + user.getExternalId());
                              continue; // Bu satırı atla, sonrakine geç
                          }
                      }
                      
-                     // Telefon kontrolü - aynı telefon varsa kaydetme
-                     if (user.getPhone() != null && !user.getPhone().trim().isEmpty()) {
-                         Optional<User> existingUserByPhone = userRepository.findByPhone(user.getPhone());
-                         if (existingUserByPhone.isPresent()) {
-                             errorCount++;
-                             Map<String, Object> errorDetail = new HashMap<>();
-                             errorDetail.put("rowNumber", actualRowNumber);
-                             errorDetail.put("userIdentifier", user.getExternalId() != null ? user.getExternalId() : user.getPhone());
-                             errorDetail.put("originalData", row);
-                             errorDetail.put("errors", Arrays.asList("Telefon numarası zaten mevcut: " + user.getPhone()));
-                             errorDetails.add(errorDetail);
-                             System.out.println("User skipped - Phone already exists: " + user.getPhone());
-                             continue; // Bu satırı atla, sonrakine geç
-                         }
-                     }
-                     
-                     // Email kontrolü - aynı email varsa kaydetme
-                     if (user.getEmails() != null && !user.getEmails().isEmpty()) {
-                         boolean emailExists = false;
-                         String existingEmail = null;
-                         for (String email : user.getEmails()) {
-                             if (email != null && !email.trim().isEmpty()) {
-                                 Optional<User> existingUserByEmail = userRepository.findByEmailsContaining(email);
-                                 if (existingUserByEmail.isPresent()) {
-                                     emailExists = true;
-                                     existingEmail = email;
-                                     break; // İlk bulunan email için dur
-                                 }
-                             }
-                         }
-                         if (emailExists) {
-                             errorCount++;
-                             Map<String, Object> errorDetail = new HashMap<>();
-                             errorDetail.put("rowNumber", actualRowNumber);
-                             errorDetail.put("userIdentifier", user.getExternalId() != null ? user.getExternalId() : existingEmail);
-                             errorDetail.put("originalData", row);
-                             errorDetail.put("errors", Arrays.asList("Email adresi zaten mevcut: " + existingEmail));
-                             errorDetails.add(errorDetail);
-                             System.out.println("User skipped - Email already exists: " + existingEmail);
-                             continue; // Bu satırı atla, sonrakine geç
-                         }
-                     }
+                     // Telefon ve email duplicate kontrolü kaldırıldı - sadece external ID kontrolü yapılıyor
                      
                      UserValidationResult validationResult = userValidator.validate(user);
                      System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
@@ -174,7 +134,6 @@ public class UserService implements ImportService {
                          errorCount++;
                          Map<String, Object> errorDetail = new HashMap<>();
                          errorDetail.put("rowNumber", actualRowNumber);
-                         errorDetail.put("userIdentifier", user.getExternalId());
                          errorDetail.put("originalData", row);
                          errorDetail.put("errors", validationResult.getErrors());
                          errorDetails.add(errorDetail);
@@ -184,9 +143,8 @@ public class UserService implements ImportService {
                      errorCount++;
                      Map<String, Object> errorDetail = new HashMap<>();
                      errorDetail.put("rowNumber", actualRowNumber);
-                     errorDetail.put("userIdentifier", "Unknown");
                      errorDetail.put("originalData", row);
-                     errorDetail.put("errors", Arrays.asList("Row processing error: " + e.getMessage()));
+                     errorDetail.put("errors", List.of("Row processing error: " + e.getMessage()));
                      errorDetails.add(errorDetail);
                      System.out.println("Exception during processing: " + e.getMessage());
                      e.printStackTrace();
@@ -221,7 +179,7 @@ public class UserService implements ImportService {
             try {
                 User user = createUserFromMap(row);
                 
-                // External ID kontrolü - aynı ID varsa kaydetme
+                // Sadece External ID kontrolü - aynı ID varsa kaydetme
                 if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
                     Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
                     if (existingUser.isPresent()) {
@@ -230,6 +188,8 @@ public class UserService implements ImportService {
                         continue; // Bu satırı atla, sonrakine geç
                     }
                 }
+                
+                // Email ve telefon duplicate kontrolü kaldırıldı - artık kayıt edilebilir
                 
                 userRepository.save(user);
                 result.setSuccessCount(result.getSuccessCount() + 1);

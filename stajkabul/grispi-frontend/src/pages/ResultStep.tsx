@@ -6,7 +6,6 @@ import { apiService } from '../services/api';
 
 interface ErrorDetail {
   rowNumber: number;
-  userIdentifier: string;
   originalData: Record<string, any>;
   errors: string[];
 }
@@ -45,9 +44,9 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(jsonString).then(() => {
-      message.success('JSON kopyalandı!');
+      message.success('JSON copied!');
     }).catch(() => {
-      message.error('Kopyalama başarısız!');
+      message.error('Copy failed!');
     });
   };
 
@@ -61,7 +60,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    message.success('JSON dosyası indirildi!');
+    message.success('JSON file downloaded!');
   };
 
   const handleImportToBackend = async () => {
@@ -70,13 +69,13 @@ const ResultStep: React.FC<ResultStepProps> = ({
       const response = await apiService.importWithMapping(mappingResult);
 
       if (response.success) {
-        message.success(`${importType} mapping verileri başarıyla backend'e gönderildi!`);
+        message.success(`${importType} mapping data successfully sent to backend!`);
         setImportModalVisible(false);
       } else {
-        message.error(`Import hatası: ${response.error}`);
+        message.error(`Import error: ${response.error}`);
       }
     } catch (error) {
-      message.error('Backend bağlantısı başarısız!');
+      message.error('Backend connection failed!');
     } finally {
       setImporting(false);
     }
@@ -97,14 +96,14 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
       if (response.success) {
         setImportResult(response.data || response);
-        message.success(`${importType} verileri başarıyla veritabanına kaydedildi!`);
+        message.success(`${importType} data successfully saved to database!`);
         setImportModalVisible(false);
       } else {
-        message.error(`Excel import hatası: ${response.error}`);
+        message.error(`Excel import error: ${response.error}`);
       }
     } catch (error) {
-      console.error('Import hatası:', error);
-      message.error('Excel import başarısız! Hata: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
+      console.error('Import error:', error);
+      message.error('Excel import failed! Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
     } finally {
       setImporting(false);
     }
@@ -139,34 +138,34 @@ const ResultStep: React.FC<ResultStepProps> = ({
               backgroundColor: '#10b981' 
             }} />
             <Text strong style={{ color: '#065f46' }}>
-              Import Tamamlandı!
+              Import Completed!
             </Text>
           </div>
           <Row gutter={16}>
             <Col span={6}>
               <Statistic
-                title="Toplam Kayıt"
+                title="Total Records"
                 value={importResult.totalRecords}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Başarılı"
+                title="Successful"
                 value={importResult.successCount}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Hatalı"
+                title="Failed"
                 value={importResult.errorCount}
                 valueStyle={{ color: '#ef4444' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Başarı Oranı"
+                title="Success Rate"
                 value={importResult.totalRecords > 0 ? Math.round((importResult.successCount / importResult.totalRecords) * 100) : 0}
                 suffix="%"
                 valueStyle={{ color: '#10b981' }}
@@ -176,13 +175,13 @@ const ResultStep: React.FC<ResultStepProps> = ({
         </Card>
       )}
 
-      {/* Hata Detayları */}
+                {/* Error Details */}
       {importResult && importResult.errorCount > 0 && (
         <Card 
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ExclamationCircleOutlined style={{ color: '#ef4444' }} />
-              <span>Hata Detayları ({importResult.errorCount} kayıt)</span>
+              <span>Error Details ({importResult.errorCount} records)</span>
             </div>
           }
           style={{ 
@@ -201,7 +200,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
               header={
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Text strong style={{ color: '#dc2626' }}>
-                    Başarısız Kayıtları Göster
+                    Show Failed Records
                   </Text>
                   <Tag color="red">{importResult.errorCount}</Tag>
                 </div>
@@ -215,25 +214,17 @@ const ResultStep: React.FC<ResultStepProps> = ({
                  scroll={{ x: true }}
                 columns={[
                   {
-                    title: 'Satır No',
+                    title: 'Row No',
                     dataIndex: 'rowNumber',
                     key: 'rowNumber',
                     width: 80,
                     render: (rowNumber) => (
-                      <Tag color="red">Satır {rowNumber}</Tag>
+                      <Tag color="red">Row {rowNumber}</Tag>
                     )
                   },
+
                   {
-                    title: 'Tanımlayıcı',
-                    dataIndex: 'userIdentifier',
-                    key: 'userIdentifier',
-                    width: 120,
-                    render: (identifier) => (
-                      <Text code>{identifier || 'Yok'}</Text>
-                    )
-                  },
-                  {
-                    title: 'Orijinal Veri',
+                    title: 'Original Data',
                     dataIndex: 'originalData',
                     key: 'originalData',
                     render: (originalData) => (
@@ -252,25 +243,28 @@ const ResultStep: React.FC<ResultStepProps> = ({
                     )
                   },
                   {
-                    title: 'Hata Mesajları',
+                    title: 'Error Messages',
                     dataIndex: 'errors',
                     key: 'errors',
-                    render: (errors) => (
-                      <div>
-                        {errors && errors.map((error: string, index: number) => (
-                          <Tag 
-                            key={index} 
-                            color="red" 
-                            style={{ marginBottom: '4px', fontSize: '11px' }}
-                          >
-                            {error}
-                          </Tag>
-                        ))}
-                      </div>
-                    )
+                    render: (errors) => {
+                      console.log('Error data received:', errors);
+                      return (
+                        <div>
+                          {errors && errors.map((error: string, index: number) => (
+                            <Tag 
+                              key={index} 
+                              color="red" 
+                              style={{ marginBottom: '4px', fontSize: '11px' }}
+                            >
+                              {error}
+                            </Tag>
+                          ))}
+                        </div>
+                      );
+                    }
                   }
                 ]}
-                rowKey={(record) => `${record.rowNumber}-${record.userIdentifier}`}
+                rowKey={(record) => `${record.rowNumber}`}
               />
             </Panel>
           </Collapse>
@@ -449,7 +443,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <p>
           {excelFile ? (
             <>
-              <Text strong>{importType}</Text> Excel verileri mapping konfigürasyonuna göre veritabanına kaydedilecek.
+              <Text strong>{importType}</Text> Excel data will be saved to database according to mapping configuration.
             </>
           ) : (
             <>

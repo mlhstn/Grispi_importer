@@ -11,21 +11,7 @@ public class OrganizationValidator {
         OrganizationValidationResult result = new OrganizationValidationResult();
 
         if (!StringUtils.hasText(organization.getExternalId())) {
-            result.addError("externalId boş olamaz.");
-        }
-
-        if (!StringUtils.hasText(organization.getName())) {
-            result.addError("name boş olamaz.");
-        }
-
-        // Tags alanı boş olabilir ama kontrol etmek istersen:
-        if (organization.getTags() != null && organization.getTags().contains("")) {
-            result.addError("Tags içinde boş değer var.");
-        }
-
-        // Domain’ler virgülle ayrıldığı için boş değer olabilir mi kontrolü
-        if (organization.getDomains() != null && organization.getDomains().contains("")) {
-            result.addError("Domains içinde boş değer var.");
+            result.addError("externalId cannot be empty.");
         }
 
         return result;

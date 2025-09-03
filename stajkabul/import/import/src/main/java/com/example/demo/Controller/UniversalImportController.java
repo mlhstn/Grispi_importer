@@ -301,34 +301,9 @@ public class UniversalImportController {
         switch (importType.toLowerCase()) {
             case "user":
                 requiredFields.put("externalId", Map.of(
-                    "required", false,
-                    "description", "Kullanıcının benzersiz dış kimliği (en az bir tanımlayıcı gerekli)",
-                    "validation", "externalId, email veya telefondan en az biri gerekli"
-                ));
-                requiredFields.put("emails", Map.of(
-                    "required", false,
-                    "description", "Kullanıcı email adresleri (en az bir tanımlayıcı gerekli)",
-                    "validation", "externalId, email veya telefondan en az biri gerekli"
-                ));
-                requiredFields.put("phone", Map.of(
-                    "required", false,
-                    "description", "Kullanıcı telefon numarası (en az bir tanımlayıcı gerekli)",
-                    "validation", "externalId, email veya telefondan en az biri gerekli"
-                ));
-                requiredFields.put("firstName", Map.of(
                     "required", true,
-                    "description", "Kullanıcının adı",
+                    "description", "Kullanıcının benzersiz dış kimliği",
                     "validation", "Boş olamaz"
-                ));
-                requiredFields.put("lastName", Map.of(
-                    "required", true,
-                    "description", "Kullanıcının soyadı",
-                    "validation", "Boş olamaz"
-                ));
-                requiredFields.put("role", Map.of(
-                    "required", true,
-                    "description", "Kullanıcı rolü",
-                    "validation", "ADMIN, AGENT, CUSTOMER değerlerinden biri olmalı"
                 ));
                 break;
                 
@@ -336,11 +311,6 @@ public class UniversalImportController {
                 requiredFields.put("externalId", Map.of(
                     "required", true,
                     "description", "Organizasyonun benzersiz dış kimliği",
-                    "validation", "Boş olamaz"
-                ));
-                requiredFields.put("name", Map.of(
-                    "required", true,
-                    "description", "Organizasyon adı",
                     "validation", "Boş olamaz"
                 ));
                 break;
@@ -362,21 +332,7 @@ public class UniversalImportController {
                 break;
                 
             case "customfield":
-                requiredFields.put("key", Map.of(
-                    "required", true,
-                    "description", "Alan anahtarı",
-                    "validation", "Boş olamaz"
-                ));
-                requiredFields.put("type", Map.of(
-                    "required", true,
-                    "description", "Alan tipi",
-                    "validation", "Geçerli bir tip olmalı"
-                ));
-                requiredFields.put("name", Map.of(
-                    "required", true,
-                    "description", "Alan adı",
-                    "validation", "Boş olamaz"
-                ));
+                // Hiçbir alan zorunlu değil
                 break;
                 
             default:

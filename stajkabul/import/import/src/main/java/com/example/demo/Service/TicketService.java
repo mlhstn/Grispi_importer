@@ -44,6 +44,17 @@ public class TicketService implements ImportService {
     }
 
     public Ticket saveTicket(Ticket ticket) {
+        // Duplicate externalId kontrolü
+        if (ticket.getExternalId() != null) {
+            Optional<Ticket> existingTicket = ticketRepository.findAll().stream()
+                .filter(t -> ticket.getExternalId().equals(t.getExternalId()))
+                .findFirst();
+            
+            if (existingTicket.isPresent()) {
+                throw new IllegalArgumentException("Ticket with externalId " + ticket.getExternalId() + " already exists");
+            }
+        }
+        
         return ticketRepository.save(ticket);
     }
 
@@ -52,6 +63,17 @@ public class TicketService implements ImportService {
     }
 
     public void save(Ticket ticket) {
+        // Duplicate externalId kontrolü
+        if (ticket.getExternalId() != null) {
+            Optional<Ticket> existingTicket = ticketRepository.findAll().stream()
+                .filter(t -> ticket.getExternalId().equals(t.getExternalId()))
+                .findFirst();
+            
+            if (existingTicket.isPresent()) {
+                throw new IllegalArgumentException("Ticket with externalId " + ticket.getExternalId() + " already exists");
+            }
+        }
+        
         ticketRepository.save(ticket);
     }
 
@@ -84,10 +106,32 @@ public class TicketService implements ImportService {
             int successCount = 0;
             int errorCount = 0;
             List<String> errors = new ArrayList<>();
+            List<Map<String, Object>> errorDetails = new ArrayList<>();
             
-            for (Map<String, Object> row : transformedData) {
+            for (int i = 0; i < transformedData.size(); i++) {
+                Map<String, Object> row = transformedData.get(i);
                 try {
                     Ticket ticket = ticketMapper.mapWithMapping(row, columnMappings);
+                    
+                    // Duplicate externalId kontrolü
+                    if (ticket.getExternalId() != null) {
+                        Optional<Ticket> existingTicket = ticketRepository.findAll().stream()
+                            .filter(t -> ticket.getExternalId().equals(t.getExternalId()))
+                            .findFirst();
+                        
+                        if (existingTicket.isPresent()) {
+                            errorCount++;
+                            errors.add("Row " + (i + 1) + ": Duplicate externalId: " + ticket.getExternalId());
+                            
+                            Map<String, Object> errorDetail = new HashMap<>();
+                            errorDetail.put("rowNumber", i + 1);
+                            errorDetail.put("originalData", row);
+                            errorDetail.put("errors", List.of("Duplicate externalId: " + ticket.getExternalId()));
+                            errorDetails.add(errorDetail);
+                            continue;
+                        }
+                    }
+                    
                     TicketValidationResult validationResult = ticketValidator.validate(ticket);
                     
                     if (validationResult.isValid()) {
@@ -95,11 +139,23 @@ public class TicketService implements ImportService {
                         successCount++;
                     } else {
                         errorCount++;
-                        errors.add("Row validation failed: " + validationResult.getErrors());
+                        errors.add("Row " + (i + 1) + " validation failed: " + String.join(", ", validationResult.getErrors()));
+                        
+                        Map<String, Object> errorDetail = new HashMap<>();
+                        errorDetail.put("rowNumber", i + 1);
+                        errorDetail.put("originalData", row);
+                        errorDetail.put("errors", validationResult.getErrors());
+                        errorDetails.add(errorDetail);
                     }
                 } catch (Exception e) {
                     errorCount++;
-                    errors.add("Row processing error: " + e.getMessage());
+                    errors.add("Row " + (i + 1) + " processing error: " + e.getMessage());
+                    
+                    Map<String, Object> errorDetail = new HashMap<>();
+                    errorDetail.put("rowNumber", i + 1);
+                    errorDetail.put("originalData", row);
+                    errorDetail.put("errors", List.of("Processing error: " + e.getMessage()));
+                    errorDetails.add(errorDetail);
                 }
             }
             
@@ -107,11 +163,11 @@ public class TicketService implements ImportService {
             result.put("totalRecords", transformedData.size());
             result.put("successCount", successCount);
             result.put("errorCount", errorCount);
-            result.put("errors", errors);
+            result.put("errors", errorDetails);
             
         } catch (Exception e) {
             result.put("success", false);
-            result.put("error", "Import error: " + e.getMessage());
+            result.put("error", "Import hatası: " + e.getMessage());
         }
         
         return result;

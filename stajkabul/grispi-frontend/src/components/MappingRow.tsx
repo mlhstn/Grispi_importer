@@ -8,7 +8,6 @@ const { Option } = Select;
 
 interface MappingRowProps {
   excelColumn: string;
-  sampleData: string[];
   grispiFields: GrispiField[];
   selectedField: string;
   onFieldChange: (value: string) => void;
@@ -17,7 +16,6 @@ interface MappingRowProps {
 
 const MappingRow: React.FC<MappingRowProps> = ({
   excelColumn,
-  sampleData,
   grispiFields,
   selectedField,
   onFieldChange,
@@ -44,11 +42,7 @@ const MappingRow: React.FC<MappingRowProps> = ({
                 {excelColumn}
               </Text>
             </div>
-            <div style={{ marginTop: 6 }}>
-              <Text type="secondary" style={{ fontSize: '12px', lineHeight: '1.4' }}>
-                Örnek: {sampleData.slice(0, 2).filter(data => data).join(', ') || 'Veri yok'}
-              </Text>
-            </div>
+            
           </div>
         </Col>
         <Col span={2} style={{ textAlign: 'center' }}>
@@ -63,7 +57,7 @@ const MappingRow: React.FC<MappingRowProps> = ({
         <Col span={12}>
           <Select
             style={{ width: '100%' }}
-            placeholder="Grispi alanı seçin..."
+            placeholder="Select Grispi field..."
             value={selectedField}
             onChange={onFieldChange}
             allowClear
@@ -91,14 +85,7 @@ const MappingRow: React.FC<MappingRowProps> = ({
                       {field.label}
                     </Text>
                   </div>
-                  <Text type="secondary" style={{ fontSize: '11px', lineHeight: '1.2' }}>
-                    Tip: {field.type}
-                  </Text>
-                  {field.description && (
-                    <Text type="secondary" style={{ fontSize: '10px', lineHeight: '1.2', color: '#666' }}>
-                      {field.description}
-                    </Text>
-                  )}
+                  
                 </div>
               </Option>
             ))}
