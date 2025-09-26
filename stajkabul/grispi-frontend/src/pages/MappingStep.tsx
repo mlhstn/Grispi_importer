@@ -253,7 +253,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
              {/* Statistics Cards */}
              <Row gutter={16} style={{ marginBottom: '24px' }}>
          <Col span={6}>
-           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
                title="Import Type"
                value={importType}
@@ -263,7 +263,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
            </Card>
          </Col>
          <Col span={6}>
-           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
                title="Total Columns"
                value={data.headers.length}
@@ -273,7 +273,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
            </Card>
          </Col>
          <Col span={6}>
-           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
                title="Mapped Fields"
                value={mappedCount}
@@ -283,7 +283,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
            </Card>
          </Col>
          <Col span={6}>
-           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
                title="Required Fields"
                value={`${mappedRequiredFields.length}/${requiredFieldMappings.length}`}

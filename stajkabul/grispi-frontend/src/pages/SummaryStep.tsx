@@ -42,7 +42,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
       
       <Row gutter={16} style={{ marginBottom: '24px' }}>
         <Col span={6}>
-          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Import Type"
               value={importType}
@@ -52,7 +52,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Total Columns"
               value={totalRows}
@@ -62,7 +62,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Mapped Fields"
               value={mappedFields}
@@ -72,7 +72,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           </Card>
         </Col>
         <Col span={6}>
-          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
+          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Unmapped Fields"
               value={unmappedFields}
