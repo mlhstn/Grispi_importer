@@ -50,15 +50,13 @@ public class UserService implements ImportService {
 
     // Yeni kullanıcı kaydet
     public User saveUser(User user) {
-        // Sadece External ID kontrolü - aynı ID varsa kaydetme
+        // Sadece External ID tekrar kontrolü - aynı ID varsa kaydetme
         if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
             Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
             if (existingUser.isPresent()) {
-                throw new IllegalArgumentException("External ID zaten mevcut: " + user.getExternalId());
+                throw new IllegalArgumentException("External ID already exists: " + user.getExternalId());
             }
         }
-        
-        // Email ve telefon duplicate kontrolü kaldırıldı - artık kayıt edilebilir
         
         System.out.println("Saving user with emails: " + user.getEmails());
         User savedUser = userRepository.save(user);
