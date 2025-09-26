@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, Typography, Row, Col, Statistic, List, Tag, Button } from 'antd';
 import { MappingField, ImportType } from '../types';
-import { CheckCircleOutlined, ArrowRightOutlined, FileTextOutlined } from '@ant-design/icons';
+import { CheckCircleOutlined, ArrowRightOutlined, FileTextOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -10,13 +10,21 @@ interface SummaryStepProps {
   mappings: MappingField[];
   totalRows: number;
   onContinue?: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
 const SummaryStep: React.FC<SummaryStepProps> = ({ 
   importType, 
   mappings, 
   totalRows,
-  onContinue
+  onContinue,
+  onNext,
+  onPrevious,
+  currentStep,
+  totalSteps
 }) => {
   const mappedFields = mappings.length;
   const unmappedFields = totalRows - mappedFields;
@@ -104,23 +112,54 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         />
       </Card>
 
-      {/* Continue Button */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '32px',
+        paddingTop: '24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
         <Button 
-          type="primary" 
-          size="large" 
-          onClick={onContinue}
-          icon={<ArrowRightOutlined />}
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
           style={{
-            backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0',
             borderRadius: '8px',
-            padding: '0 32px',
-            height: '48px',
-            fontSize: '16px'
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
           }}
         >
-          Continue to Result
+          Previous
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <span>Step {currentStep + 1} of {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          onClick={onNext}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            backgroundColor: '#9b51e0',
+            borderColor: '#9b51e0'
+          }}
+        >
+          Next
         </Button>
       </div>
 
@@ -141,7 +180,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           }} />
           <Text style={{ color: '#065f46', fontSize: '14px' }}>
             {mappedFields > 0 
-              ? `Mapping completed successfully! ${mappedFields} fields mapped. Click "Continue to Result" to see the final output.`
+              ? `Mapping completed successfully! ${mappedFields} fields mapped. Use the navigation buttons to proceed to the final result.`
               : 'No fields have been mapped. Please go back to the mapping step to configure field mappings.'
             }
           </Text>

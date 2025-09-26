@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Upload, Select, Card, Typography, message, Button } from 'antd';
-import { InboxOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { Upload, Select, Card, Typography, message, Button, Space } from 'antd';
+import { InboxOutlined, CloudUploadOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ImportType } from '../types';
 import { apiService } from '../services/api';
 
@@ -10,9 +10,13 @@ const { Title, Text, Paragraph } = Typography;
 
 interface UploadStepProps {
   onFileUpload: (file: File, importType: ImportType) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload }) => {
+const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPrevious, currentStep, totalSteps }) => {
   const [importType, setImportType] = useState<ImportType>('User');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -54,7 +58,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload }) => {
           Import Your Data
         </Title>
         <Text type="secondary" style={{ fontSize: '16px' }}>
-        Upload Excel or CSV files to import users, organizations, groups, tickets, or custom fields        </Text>
+        Upload Excel or CSV files to import users, tickets, or custom fields        </Text>
       </div>
 
       {/* Import Type Selection */}
@@ -77,8 +81,6 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload }) => {
           size="large"
         >
          <Option value="User">👤 User</Option>
-          <Option value="Organization">🏢 Organization</Option>
-          <Option value="Group">👥 Group</Option>
           <Option value="Ticket">🎫 Ticket</Option>
           <Option value="CustomField">⚙️ Custom Field</Option>
         </Select>
@@ -164,6 +166,59 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload }) => {
           </div>
         </div>
       </Card>
+
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '32px',
+        paddingTop: '24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <Button 
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          disabled={currentStep === 0}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
+          }}
+        >
+          Previous
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <span>Step {currentStep + 1} of {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          onClick={onNext}
+          disabled={!selectedFile}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            backgroundColor: '#9b51e0',
+            borderColor: '#9b51e0'
+          }}
+        >
+          Next
+        </Button>
+      </div>
     </div>
   );
 };

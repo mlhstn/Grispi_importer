@@ -73,7 +73,13 @@ function App() {
     {
       title: 'Upload',
       icon: <UploadOutlined />,
-      content: <UploadStep onFileUpload={handleFileUpload} />
+      content: <UploadStep 
+        onFileUpload={handleFileUpload} 
+        onNext={() => setCurrentStep(1)}
+        onPrevious={() => setCurrentStep(0)}
+        currentStep={currentStep}
+        totalSteps={5}
+      />
     },
     {
       title: 'Preview',
@@ -82,6 +88,10 @@ function App() {
         <DataPreviewStep 
           data={excelData} 
           onContinue={handleContinueToMapping}
+          onNext={() => setCurrentStep(2)}
+          onPrevious={() => setCurrentStep(0)}
+          currentStep={currentStep}
+          totalSteps={5}
         />
       ) : null
     },
@@ -92,7 +102,11 @@ function App() {
         <MappingStep 
           data={excelData} 
           importType={importType} 
-          onMappingComplete={handleMappingComplete} 
+          onMappingComplete={handleMappingComplete}
+          onNext={() => setCurrentStep(3)}
+          onPrevious={() => setCurrentStep(1)}
+          currentStep={currentStep}
+          totalSteps={5}
         />
       ) : null
     },
@@ -104,6 +118,10 @@ function App() {
         mappings={mappings} 
         totalRows={excelData?.headers.length || 0}
         onContinue={handleContinueToResult}
+        onNext={() => setCurrentStep(4)}
+        onPrevious={() => setCurrentStep(2)}
+        currentStep={currentStep}
+        totalSteps={5}
       />
     },
     {
@@ -115,6 +133,10 @@ function App() {
         totalRows={excelData?.headers.length || 0} 
         onReset={handleReset}
         excelFile={excelFile || undefined}
+        onNext={() => setCurrentStep(0)}
+        onPrevious={() => setCurrentStep(3)}
+        currentStep={currentStep}
+        totalSteps={5}
       />
     }
   ];

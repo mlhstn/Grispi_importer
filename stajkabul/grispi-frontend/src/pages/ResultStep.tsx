@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic, Table, Tag, Collapse } from 'antd';
-import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
+import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined, ExclamationCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { MappingField, ImportType } from '../types';
 import { apiService } from '../services/api';
 
@@ -19,6 +19,10 @@ interface ResultStepProps {
   totalRows: number;
   onReset: () => void;
   excelFile?: File; // Excel dosyasını da al
+  onNext: () => void;
+  onPrevious: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
 const ResultStep: React.FC<ResultStepProps> = ({ 
@@ -26,7 +30,11 @@ const ResultStep: React.FC<ResultStepProps> = ({
   mappings, 
   totalRows, 
   onReset,
-  excelFile 
+  excelFile,
+  onNext,
+  onPrevious,
+  currentStep,
+  totalSteps
 }) => {
   const [importing, setImporting] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
@@ -273,7 +281,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
       {/* Statistics Cards */}
       <Row gutter={16} style={{ marginBottom: '24px' }}>
-        <Col span={6}>
+        <Col span={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
             <Statistic
               title="Import Type"
@@ -283,7 +291,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
             <Statistic
               title="Total Columns"
@@ -293,22 +301,11 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col span={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
             <Statistic
               title="Mapped Fields"
               value={mappings.length}
-              prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
-              valueStyle={{ color: '#9b51e0' }}
-            />
-          </Card>
-        </Col>
-        <Col span={6}>
-          <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px' }}>
-            <Statistic
-              title="Success Rate"
-              value={totalRows > 0 ? Math.round((mappings.length / totalRows) * 100) : 0}
-              suffix="%"
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
             />
@@ -353,7 +350,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
                 borderRadius: '6px'
               }}
             >
-              {excelFile ? 'Import to Database' : 'Send to Backend'}
+              {excelFile ? 'Send to Grispi' : 'Send to Backend'}
             </Button>
           </Space>
         }
@@ -375,24 +372,53 @@ const ResultStep: React.FC<ResultStepProps> = ({
         </pre>
       </Card>
 
-      {/* Action Buttons */}
-      <div style={{ textAlign: 'center' }}>
-        <Space size="large">
-          <Button 
-            onClick={onReset} 
-            size="large"
-            style={{
-              borderColor: '#d1d5db',
-              color: '#6b7280',
-              borderRadius: '8px',
-              padding: '0 32px',
-              height: '48px',
-              fontSize: '16px'
-            }}
-          >
-            Start New Import
-          </Button>
-        </Space>
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '32px',
+        paddingTop: '24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <Button 
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
+          }}
+        >
+          Previous
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <span>Step {currentStep + 1} of {totalSteps}</span>
+        </div>
+        
+        <Button 
+          onClick={onReset} 
+          size="large"
+          style={{
+            borderColor: '#d1d5db',
+            color: '#6b7280',
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
+          }}
+        >
+          Start New Import
+        </Button>
       </div>
 
       {/* Success Info */}
@@ -419,7 +445,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
       {/* Backend Import Modal */}
       <Modal
-        title={excelFile ? "Import to Database" : "Send to Backend"}
+        title={excelFile ? "Send to Grispi" : "Send to Backend"}
         open={importModalVisible}
         onOk={() => {
           console.log('Modal OK clicked');
@@ -431,7 +457,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         }}
         onCancel={() => setImportModalVisible(false)}
         confirmLoading={importing}
-        okText={excelFile ? "Import" : "Send"}
+        okText={excelFile ? "Send to Grispi" : "Send"}
         cancelText="Cancel"
         okButtonProps={{
           style: {
@@ -443,7 +469,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <p>
           {excelFile ? (
             <>
-              <Text strong>{importType}</Text> Excel data will be saved to database according to mapping configuration.
+              <Text strong>{importType}</Text> Excel data will be sent to Grispi according to mapping configuration.
             </>
           ) : (
             <>

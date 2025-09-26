@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Space, message, Row, Col, Statistic, Modal, Input, List, Tag, Tooltip } from 'antd';
-import { LinkOutlined, ArrowRightOutlined, CheckCircleOutlined, BookOutlined, StarOutlined, DeleteOutlined, EditOutlined, SaveOutlined } from '@ant-design/icons';
+import { LinkOutlined, ArrowRightOutlined, CheckCircleOutlined, BookOutlined, StarOutlined, DeleteOutlined, EditOutlined, SaveOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ExcelData, GrispiField, MappingField } from '../types';
 import MappingRow from '../components/MappingRow';
 import { GRISPI_FIELDS } from '../types';
@@ -12,12 +12,20 @@ interface MappingStepProps {
   data: ExcelData;
   importType: string;
   onMappingComplete: (mappings: MappingField[]) => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
 const MappingStep: React.FC<MappingStepProps> = ({ 
   data, 
   importType, 
-  onMappingComplete 
+  onMappingComplete,
+  onNext,
+  onPrevious,
+  currentStep,
+  totalSteps
 }) => {
   const [mappings, setMappings] = useState<Record<string, string>>({});
   const [mappedCount, setMappedCount] = useState(0);
@@ -351,25 +359,56 @@ const MappingStep: React.FC<MappingStepProps> = ({
         ))}
       </Card>
 
-      {/* Continue Button */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                 <Button 
-           type="primary" 
-           size="large" 
-           onClick={handleContinue}
-           icon={<ArrowRightOutlined />}
-           disabled={mappedCount === 0}
-           style={{
-             backgroundColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
-             borderColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
-             borderRadius: '8px',
-             padding: '0 32px',
-             height: '48px',
-             fontSize: '16px'
-           }}
-         >
-           {requiredFieldMappings.length === 0 ? 'Continue to Summary' : (requiredFieldsProgress === 100 ? 'Continue to Summary' : `Required Fields (${mappedRequiredFields.length}/${requiredFieldMappings.length})`)}
-         </Button>
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '32px',
+        paddingTop: '24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <Button 
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
+          }}
+        >
+          Previous
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <span>Step {currentStep + 1} of {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          onClick={handleContinue}
+          disabled={mappedCount === 0 || (requiredFieldMappings.length > 0 && requiredFieldsProgress < 100)}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            backgroundColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
+            borderColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db'
+          }}
+        >
+          Next
+        </Button>
       </div>
 
       {/* Progress Info */}

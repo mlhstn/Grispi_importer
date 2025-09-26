@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Card, Typography, Tag, Row, Col, Statistic, Button } from 'antd';
-import { FileTextOutlined, BarChartOutlined, EyeOutlined, ArrowRightOutlined } from '@ant-design/icons';
+import { FileTextOutlined, BarChartOutlined, EyeOutlined, ArrowRightOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ExcelData } from '../types';
 
 const { Title, Text } = Typography;
@@ -8,9 +8,13 @@ const { Title, Text } = Typography;
 interface DataPreviewStepProps {
   data: ExcelData;
   onContinue?: () => void;
+  onNext: () => void;
+  onPrevious: () => void;
+  currentStep: number;
+  totalSteps: number;
 }
 
-const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue }) => {
+const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onNext, onPrevious, currentStep, totalSteps }) => {
   const columns = data.headers.map((header: string, index: number) => ({
     title: header,
     dataIndex: index,
@@ -95,23 +99,54 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue }) =
         />
       </Card>
 
-      {/* Continue Button */}
-      <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        marginTop: '32px',
+        paddingTop: '24px',
+        borderTop: '1px solid #e5e7eb'
+      }}>
         <Button 
-          type="primary" 
-          size="large" 
-          onClick={onContinue}
-          icon={<ArrowRightOutlined />}
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
           style={{
-            backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0',
             borderRadius: '8px',
-            padding: '0 32px',
-            height: '48px',
-            fontSize: '16px'
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px'
           }}
         >
-          Continue to Mapping
+          Previous
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '14px'
+        }}>
+          <span>Step {currentStep + 1} of {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          onClick={onNext}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '40px',
+            paddingLeft: '20px',
+            paddingRight: '20px',
+            backgroundColor: '#9b51e0',
+            borderColor: '#9b51e0'
+          }}
+        >
+          Next
         </Button>
       </div>
 
@@ -132,7 +167,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue }) =
           }} />
           <Text style={{ color: '#581c87', fontSize: '14px' }}>
             Showing first 5 rows of {data.rows.length} total rows. 
-            Click "Continue to Mapping" to configure field mappings for your data.
+            Use the navigation buttons to proceed to field mapping.
           </Text>
         </div>
       </Card>
