@@ -96,15 +96,63 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         <List
           dataSource={mappings}
           renderItem={(mapping) => (
-            <List.Item>
-              <div style={{ width: '100%', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <Text strong style={{ color: '#1f2937' }}>{mapping.excelColumn}</Text>
-
+            <List.Item 
+              style={{ 
+                padding: '16px 0',
+                borderBottom: '1px solid #f0f0f0',
+                marginBottom: '8px'
+              }}
+            >
+              <div style={{ 
+                width: '100%', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                padding: '12px 16px',
+                backgroundColor: '#fafafa',
+                borderRadius: '8px',
+                border: '1px solid #e5e7eb'
+              }}>
+                <div style={{ flex: 1 }}>
+                  <Text strong style={{ 
+                    color: '#1f2937', 
+                    fontSize: '15px',
+                    display: 'block',
+                    marginBottom: '4px'
+                  }}>
+                    {mapping.excelColumn}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    Excel Column
+                  </Text>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <Tag color="blue" style={{ marginRight: '8px' }}>→</Tag>
-                  <Text strong style={{ color: '#9b51e0' }}>{mapping.grispiField}</Text>
+                
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  margin: '0 20px' 
+                }}>
+                  <ArrowRightOutlined 
+                    style={{ 
+                      color: '#9b51e0', 
+                      fontSize: '18px',
+                      fontWeight: 'bold'
+                    }} 
+                  />
+                </div>
+                
+                <div style={{ flex: 1, textAlign: 'right' }}>
+                  <Text strong style={{ 
+                    color: '#9b51e0', 
+                    fontSize: '15px',
+                    display: 'block',
+                    marginBottom: '4px'
+                  }}>
+                    {mapping.grispiField}
+                  </Text>
+                  <Text type="secondary" style={{ fontSize: '12px' }}>
+                    Grispi Field
+                  </Text>
                 </div>
               </div>
             </List.Item>

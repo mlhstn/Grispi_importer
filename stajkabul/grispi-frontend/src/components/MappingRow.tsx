@@ -1,5 +1,6 @@
 import React from 'react';
 import { Row, Col, Select, Typography, Card, Tag } from 'antd';
+import { ArrowRightOutlined } from '@ant-design/icons';
 
 import { GrispiField } from '../types';
 
@@ -27,32 +28,36 @@ const MappingRow: React.FC<MappingRowProps> = ({
     <Card 
       size="small" 
       style={{ 
-        marginBottom: 12, 
+        marginBottom: 16, 
         border: selectedField ? '1px solid #d1fae5' : '1px solid #e5e7eb',
         backgroundColor: selectedField ? '#f0fdf4' : '#ffffff',
-        borderRadius: '8px',
-        transition: 'all 0.2s ease'
+        borderRadius: '12px',
+        transition: 'all 0.2s ease',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
       }}
+      hoverable
     >
-      <Row gutter={24} align="middle">
+      <Row gutter={24} align="middle" style={{ minHeight: '60px' }}>
         <Col span={10}>
-          <div style={{ padding: '4px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <Text strong style={{ fontSize: '14px', color: '#1f2937' }}>
+          <div style={{ padding: '8px 0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Text strong style={{ fontSize: '15px', color: '#1f2937' }}>
                 {excelColumn}
               </Text>
+              {requiredFields[excelColumn]?.required && (
+                <Tag color="red">Required</Tag>
+              )}
             </div>
-            
           </div>
         </Col>
         <Col span={2} style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '24px', 
-            height: '2px', 
-            backgroundColor: '#9b51e0', 
-            borderRadius: '1px',
-            margin: '0 auto'
-          }} />
+          <ArrowRightOutlined 
+            style={{ 
+              color: '#9b51e0', 
+              fontSize: '16px',
+              fontWeight: 'bold'
+            }} 
+          />
         </Col>
         <Col span={12}>
           <Select
@@ -61,8 +66,12 @@ const MappingRow: React.FC<MappingRowProps> = ({
             value={selectedField}
             onChange={onFieldChange}
             allowClear
-            size="middle"
+            size="large"
             optionLabelProp="label"
+            showSearch
+            filterOption={(input, option) =>
+              String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+            }
           >
             {grispiFields.map((field) => (
               <Option 
@@ -72,26 +81,17 @@ const MappingRow: React.FC<MappingRowProps> = ({
               >
                 <div style={{ 
                   display: 'flex', 
-                  flexDirection: 'column', 
-                  gap: '2px',
-                  padding: '2px 0'
+                  alignItems: 'center', 
+                  gap: '8px',
+                  padding: '4px 0'
                 }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '4px'
-                  }}>
-                    <Text style={{ fontWeight: 500, fontSize: '13px' }}>
-                      {field.label}
-                    </Text>
-                  </div>
-                  
+                  <Text style={{ fontWeight: 500, fontSize: '14px' }}>
+                    {field.label}
+                  </Text>
                 </div>
               </Option>
             ))}
           </Select>
-          
-          
         </Col>
       </Row>
     </Card>
