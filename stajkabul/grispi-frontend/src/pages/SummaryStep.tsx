@@ -30,18 +30,29 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
   const unmappedFields = totalRows - mappedFields;
 
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <Title level={2} style={{ color: '#1f2937', marginBottom: '8px' }}>
+    <div style={{ padding: '0 16px' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '32px',
+        padding: '0 8px'
+      }}>
+        <Title level={2} style={{ 
+          color: '#1f2937', 
+          marginBottom: '8px',
+          fontSize: window.innerWidth < 768 ? '24px' : '32px'
+        }}>
           Mapping Summary
         </Title>
-        <Text type="secondary" style={{ fontSize: '16px' }}>
+        <Text type="secondary" style={{ 
+          fontSize: window.innerWidth < 768 ? '14px' : '16px',
+          lineHeight: '1.5'
+        }}>
           Review your field mappings before proceeding
         </Text>
       </div>
       
-      <Row gutter={16} style={{ marginBottom: '24px' }}>
-        <Col span={6}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Import Type"
@@ -51,7 +62,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Total Columns"
@@ -61,7 +72,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Mapped Fields"
@@ -71,7 +82,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={6}>
+        <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Unmapped Fields"
@@ -167,17 +178,20 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         alignItems: 'center',
         marginTop: '32px',
         paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb'
+        borderTop: '1px solid #e5e7eb',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        gap: window.innerWidth < 768 ? '16px' : '0'
       }}>
         <Button 
           icon={<LeftOutlined />}
           onClick={onPrevious}
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px'
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Previous
@@ -188,7 +202,8 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           alignItems: 'center', 
           gap: '8px',
           color: '#6b7280',
-          fontSize: '14px'
+          fontSize: window.innerWidth < 768 ? '12px' : '14px',
+          order: window.innerWidth < 768 ? -1 : 0
         }}>
           <span>Step {currentStep + 1} of {totalSteps}</span>
         </div>
@@ -197,14 +212,15 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           type="primary"
           icon={<RightOutlined />}
           onClick={onNext}
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px',
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
             backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0'
+            borderColor: '#9b51e0',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Next

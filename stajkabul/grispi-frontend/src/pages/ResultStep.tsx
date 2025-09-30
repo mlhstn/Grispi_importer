@@ -118,12 +118,23 @@ const ResultStep: React.FC<ResultStepProps> = ({
   };
 
   return (
-    <div>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <Title level={2} style={{ color: '#1f2937', marginBottom: '8px' }}>
+    <div style={{ padding: '0 16px' }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '32px',
+        padding: '0 8px'
+      }}>
+        <Title level={2} style={{ 
+          color: '#1f2937', 
+          marginBottom: '8px',
+          fontSize: window.innerWidth < 768 ? '24px' : '32px'
+        }}>
           Import Result
         </Title>
-        <Text type="secondary" style={{ fontSize: '16px' }}>
+        <Text type="secondary" style={{ 
+          fontSize: window.innerWidth < 768 ? '14px' : '16px',
+          lineHeight: '1.5'
+        }}>
           Your mapping configuration is ready
         </Text>
       </div>
@@ -280,8 +291,8 @@ const ResultStep: React.FC<ResultStepProps> = ({
       )}
 
       {/* Statistics Cards */}
-      <Row gutter={16} style={{ marginBottom: '24px' }}>
-        <Col span={8}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Import Type"
@@ -291,7 +302,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Total Columns"
@@ -301,7 +312,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col span={8}>
+        <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title="Mapped Fields"
@@ -379,17 +390,20 @@ const ResultStep: React.FC<ResultStepProps> = ({
         alignItems: 'center',
         marginTop: '32px',
         paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb'
+        borderTop: '1px solid #e5e7eb',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        gap: window.innerWidth < 768 ? '16px' : '0'
       }}>
         <Button 
           icon={<LeftOutlined />}
           onClick={onPrevious}
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px'
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Previous
@@ -400,21 +414,23 @@ const ResultStep: React.FC<ResultStepProps> = ({
           alignItems: 'center', 
           gap: '8px',
           color: '#6b7280',
-          fontSize: '14px'
+          fontSize: window.innerWidth < 768 ? '12px' : '14px',
+          order: window.innerWidth < 768 ? -1 : 0
         }}>
           <span>Step {currentStep + 1} of {totalSteps}</span>
         </div>
         
         <Button 
           onClick={onReset} 
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderColor: '#d1d5db',
             color: '#6b7280',
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px'
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Start New Import

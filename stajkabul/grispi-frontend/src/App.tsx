@@ -182,29 +182,46 @@ function App() {
 
 
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="profile">Profile</Menu.Item>
-      <Menu.Item key="settings">Settings</Menu.Item>
-      <Menu.Item key="logout">Logout</Menu.Item>
-    </Menu>
-  );
+  const userMenuItems = [
+    {
+      key: 'profile',
+      label: 'Profile',
+    },
+    {
+      key: 'settings',
+      label: 'Settings',
+    },
+    {
+      key: 'logout',
+      label: 'Logout',
+    },
+  ];
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* Sidebar */}
       <Sider 
-        width={250} 
+        width={window.innerWidth < 768 ? 200 : 250}
+        collapsedWidth={window.innerWidth < 768 ? 0 : 80}
+        breakpoint="md"
+        collapsible={window.innerWidth < 768}
         style={{ 
           background: 'var(--grispi-sidebar-bg)',
           borderRight: '1px solid var(--grispi-sidebar-border)'
         }}
       >
         <div style={{ 
-          padding: '20px', 
+          padding: window.innerWidth < 768 ? '16px' : '20px', 
           borderBottom: '1px solid var(--grispi-sidebar-border)' 
         }}>
-          <Title level={4} className="grispi-sidebar-text" style={{ margin: 0 }}>
+          <Title 
+            level={4} 
+            className="grispi-sidebar-text" 
+            style={{ 
+              margin: 0,
+              fontSize: window.innerWidth < 768 ? '16px' : '18px'
+            }}
+          >
             Grispi Import
           </Title>
         </div>
@@ -225,26 +242,46 @@ function App() {
         {/* Header */}
         <Header style={{ 
           background: 'var(--grispi-bg-primary)', 
-          padding: '0 24px', 
+          padding: window.innerWidth < 768 ? '0 16px' : '0 24px', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
-          borderBottom: '1px solid var(--grispi-border)'
+          borderBottom: '1px solid var(--grispi-border)',
+          height: window.innerWidth < 768 ? '56px' : '64px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <MenuOutlined className="grispi-mor-text" style={{ fontSize: '18px', marginRight: '16px' }} />
-            <Title level={4} style={{ margin: 0, color: 'var(--grispi-text-primary)' }}>
+            <MenuOutlined 
+              className="grispi-mor-text" 
+              style={{ 
+                fontSize: window.innerWidth < 768 ? '16px' : '18px', 
+                marginRight: window.innerWidth < 768 ? '12px' : '16px' 
+              }} 
+            />
+            <Title 
+              level={4} 
+              style={{ 
+                margin: 0, 
+                color: 'var(--grispi-text-primary)',
+                fontSize: window.innerWidth < 768 ? '16px' : '18px'
+              }}
+            >
               Import Contacts
             </Title>
           </div>
           
-          <Space size="large">
-            <QuestionCircleOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
-            <BellOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
-            <Dropdown overlay={userMenu} placement="bottomRight">
+          <Space size={window.innerWidth < 768 ? 'middle' : 'large'}>
+            {window.innerWidth >= 768 && (
+              <>
+                <QuestionCircleOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
+                <BellOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
+              </>
+            )}
+            <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Space style={{ cursor: 'pointer' }}>
                 <Avatar size="small" icon={<UserSwitchOutlined />} />
-                <span style={{ color: 'var(--grispi-text-secondary)' }}>Username</span>
+                {window.innerWidth >= 768 && (
+                  <span style={{ color: 'var(--grispi-text-secondary)' }}>Username</span>
+                )}
               </Space>
             </Dropdown>
           </Space>
@@ -252,17 +289,21 @@ function App() {
         
         {/* Content */}
         <Content style={{ 
-          padding: '24px', 
+          padding: window.innerWidth < 768 ? '16px' : '24px', 
           background: 'var(--grispi-bg-secondary)',
-          minHeight: 'calc(100vh - 64px)'
+          minHeight: window.innerWidth < 768 ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)'
         }}>
-          <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ 
+            maxWidth: 1200, 
+            margin: '0 auto',
+            padding: window.innerWidth < 768 ? '0 8px' : '0'
+          }}>
             {/* Steps */}
             <div style={{ 
               background: 'var(--grispi-bg-primary)', 
-              padding: '24px', 
+              padding: window.innerWidth < 768 ? '16px' : '24px', 
               borderRadius: '12px', 
-              marginBottom: '24px',
+              marginBottom: window.innerWidth < 768 ? '16px' : '24px',
               boxShadow: '0 2px 8px var(--grispi-shadow-card)'
             }}>
               <Steps 

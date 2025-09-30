@@ -52,12 +52,27 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
   };
 
   return (
-    <div style={{ maxWidth: 800, margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-        <Title level={2} style={{ color: '#1f2937', marginBottom: '8px' }}>
+    <div style={{ 
+      maxWidth: 800, 
+      margin: '0 auto',
+      padding: '0 16px'
+    }}>
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '32px',
+        padding: '0 8px'
+      }}>
+        <Title level={2} style={{ 
+          color: '#1f2937', 
+          marginBottom: '8px',
+          fontSize: window.innerWidth < 768 ? '24px' : '32px'
+        }}>
           Import Your Data
         </Title>
-        <Text type="secondary" style={{ fontSize: '16px' }}>
+        <Text type="secondary" style={{ 
+          fontSize: window.innerWidth < 768 ? '14px' : '16px',
+          lineHeight: '1.5'
+        }}>
         Upload Excel or CSV files to import users, tickets, or custom fields        </Text>
       </div>
 
@@ -174,18 +189,21 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
         alignItems: 'center',
         marginTop: '32px',
         paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb'
+        borderTop: '1px solid #e5e7eb',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        gap: window.innerWidth < 768 ? '16px' : '0'
       }}>
         <Button 
           icon={<LeftOutlined />}
           onClick={onPrevious}
           disabled={currentStep === 0}
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px'
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Previous
@@ -196,7 +214,8 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           alignItems: 'center', 
           gap: '8px',
           color: '#6b7280',
-          fontSize: '14px'
+          fontSize: window.innerWidth < 768 ? '12px' : '14px',
+          order: window.innerWidth < 768 ? -1 : 0
         }}>
           <span>Step {currentStep + 1} of {totalSteps}</span>
         </div>
@@ -206,14 +225,15 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           icon={<RightOutlined />}
           onClick={onNext}
           disabled={!selectedFile}
-          size="large"
+          size={window.innerWidth < 768 ? 'middle' : 'large'}
           style={{
             borderRadius: '8px',
-            height: '40px',
-            paddingLeft: '20px',
-            paddingRight: '20px',
+            height: window.innerWidth < 768 ? '36px' : '40px',
+            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
             backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0'
+            borderColor: '#9b51e0',
+            width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
           Next
