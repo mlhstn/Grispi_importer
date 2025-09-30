@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Typography, Row, Col, Statistic, List, Tag, Button } from 'antd';
+import { useTranslation } from 'react-i18next';
 import { MappingField, ImportType } from '../types';
 import { CheckCircleOutlined, ArrowRightOutlined, FileTextOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 
@@ -26,8 +27,26 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
   currentStep,
   totalSteps
 }) => {
+  const { t } = useTranslation();
   const mappedFields = mappings.length;
   const unmappedFields = totalRows - mappedFields;
+
+  // Translation strings
+  const translations = {
+    title: t('summary.title'),
+    subtitle: t('summary.subtitle'),
+    importType: t('summary.importType'),
+    totalColumns: t('summary.totalColumns'),
+    mappedFields: t('summary.mappedFields'),
+    unmappedFields: t('summary.unmappedFields'),
+    mappingDetails: t('summary.mappingDetails'),
+    excelColumn: t('summary.excelColumn'),
+    grispiField: t('summary.grispiField'),
+    previous: t('summary.previous'),
+    next: t('summary.next'),
+    step: t('summary.step'),
+    of: t('summary.of')
+  };
 
   return (
     <div style={{ padding: '0 16px' }}>
@@ -41,13 +60,13 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           marginBottom: '8px',
           fontSize: window.innerWidth < 768 ? '24px' : '32px'
         }}>
-          Mapping Summary
+          {translations.title}
         </Title>
         <Text type="secondary" style={{ 
           fontSize: window.innerWidth < 768 ? '14px' : '16px',
           lineHeight: '1.5'
         }}>
-          Review your field mappings before proceeding
+          {translations.subtitle}
         </Text>
       </div>
       
@@ -55,7 +74,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Import Type"
+              title={translations.importType}
               value={importType}
               prefix={<FileTextOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0', fontSize: '16px' }}
@@ -65,7 +84,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Total Columns"
+              title={translations.totalColumns}
               value={totalRows}
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -75,7 +94,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Mapped Fields"
+              title={translations.mappedFields}
               value={mappedFields}
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -85,7 +104,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         <Col xs={24} sm={12} md={6}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Unmapped Fields"
+              title={translations.unmappedFields}
               value={unmappedFields}
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -99,7 +118,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <CheckCircleOutlined style={{ color: '#9b51e0' }} />
-            <span>Mapping Details</span>
+            <span>{translations.mappingDetails}</span>
           </div>
         }
         style={{ border: '1px solid #e5e7eb', marginBottom: '24px', borderRadius: '12px' }}
@@ -134,7 +153,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
                     {mapping.excelColumn}
                   </Text>
                   <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Excel Column
+                    {translations.excelColumn}
                   </Text>
                 </div>
                 
@@ -162,7 +181,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
                     {mapping.grispiField}
                   </Text>
                   <Text type="secondary" style={{ fontSize: '12px' }}>
-                    Grispi Field
+                    {translations.grispiField}
                   </Text>
                 </div>
               </div>
@@ -194,7 +213,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Previous
+          {translations.previous}
         </Button>
         
         <div style={{ 
@@ -205,7 +224,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           fontSize: window.innerWidth < 768 ? '12px' : '14px',
           order: window.innerWidth < 768 ? -1 : 0
         }}>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
         </div>
         
         <Button 
@@ -223,7 +242,7 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Next
+          {translations.next}
         </Button>
       </div>
 
@@ -244,8 +263,8 @@ const SummaryStep: React.FC<SummaryStepProps> = ({
           }} />
           <Text style={{ color: '#065f46', fontSize: '14px' }}>
             {mappedFields > 0 
-              ? `Mapping completed successfully! ${mappedFields} fields mapped. Use the navigation buttons to proceed to the final result.`
-              : 'No fields have been mapped. Please go back to the mapping step to configure field mappings.'
+              ? t('summary.mappingCompleted', { mappedFields })
+              : t('summary.noFieldsMapped')
             }
           </Text>
         </div>

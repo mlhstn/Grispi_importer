@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic, Table, Tag, Collapse } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined, ExclamationCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { translateErrorMessage } from '../utils/errorTranslator';
 import { MappingField, ImportType } from '../types';
 import { apiService } from '../services/api';
 
@@ -36,9 +38,49 @@ const ResultStep: React.FC<ResultStepProps> = ({
   currentStep,
   totalSteps
 }) => {
+  const { t } = useTranslation();
   const [importing, setImporting] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
+
+  // Translation strings
+  const translations = {
+    totalRecords: t('result.totalRecords'),
+    successful: t('result.successful'),
+    failed: t('result.failed'),
+    successRate: t('result.successRate'),
+    importType: t('result.importType'),
+    totalColumns: t('result.totalColumns'),
+    mappedFields: t('result.mappedFields'),
+    rowNo: t('result.rowNo'),
+    originalData: t('result.originalData'),
+    errorMessages: t('result.errorMessages'),
+    errorDetails: t('result.errorDetails'),
+    showFailedRecords: t('result.showFailedRecords'),
+    jsonConfiguration: t('result.jsonConfiguration'),
+    copy: t('result.copy'),
+    download: t('result.download'),
+    sendToGrispi: t('result.sendToGrispi'),
+    sendToBackend: t('result.sendToBackend'),
+    previous: t('result.previous'),
+    startNewImport: t('result.startNewImport'),
+    step: t('result.step'),
+    of: t('result.of'),
+    importCompletedMessage: t('result.importCompletedMessage'),
+    modalTitle: t('result.modalTitle'),
+    modalTitleBackend: t('result.modalTitleBackend'),
+    modalMessage: t('result.modalMessage'),
+    modalMessageBackend: t('result.modalMessageBackend'),
+    modalFooter: t('result.modalFooter', { mappedFields: mappings.length, totalColumns: totalRows }),
+    send: t('result.send'),
+    cancel: t('result.cancel'),
+    row: t('errors.row')
+  };
+
+  // Hata mesajlarını çeviren fonksiyon
+  const translateErrors = (errors: string[]): string[] => {
+    return errors.map(error => translateErrorMessage(error, t));
+  };
 
   const mappingResult = {
     importType,
@@ -52,9 +94,9 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
   const handleCopy = () => {
     navigator.clipboard.writeText(jsonString).then(() => {
-      message.success('JSON copied!');
+      message.success(t('result.copySuccess') as any);
     }).catch(() => {
-      message.error('Copy failed!');
+      message.error(t('result.copyFailed') as any);
     });
   };
 
@@ -68,7 +110,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    message.success('JSON file downloaded!');
+    message.success(t('result.downloadSuccess') as any);
   };
 
   const handleImportToBackend = async () => {
@@ -77,13 +119,13 @@ const ResultStep: React.FC<ResultStepProps> = ({
       const response = await apiService.importWithMapping(mappingResult);
 
       if (response.success) {
-        message.success(`${importType} mapping data successfully sent to backend!`);
+        message.success(`${importType} ${t('result.importSuccess')}` as any);
         setImportModalVisible(false);
       } else {
         message.error(`Import error: ${response.error}`);
       }
     } catch (error) {
-      message.error('Backend connection failed!');
+      message.error(t('result.backendConnectionFailed') as any);
     } finally {
       setImporting(false);
     }
@@ -91,7 +133,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
   const handleImportExcelToDatabase = async () => {
     if (!excelFile) {
-      message.error('Excel dosyası bulunamadı!');
+      message.error(t('result.excelFileNotFound') as any);
       return;
     }
 
@@ -104,14 +146,14 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
       if (response.success) {
         setImportResult(response.data || response);
-        message.success(`${importType} data successfully saved to database!`);
+        message.success(`${importType} ${t('result.importSuccess')}` as any);
         setImportModalVisible(false);
       } else {
-        message.error(`Excel import error: ${response.error}`);
+        message.error(`${t('result.importError')} ${response.error}` as any);
       }
     } catch (error) {
       console.error('Import error:', error);
-      message.error('Excel import failed! Error: ' + (error instanceof Error ? error.message : 'Unknown error'));
+      message.error(t('result.importFailed') + (error instanceof Error ? error.message : 'Unknown error') as any);
     } finally {
       setImporting(false);
     }
@@ -129,13 +171,13 @@ const ResultStep: React.FC<ResultStepProps> = ({
           marginBottom: '8px',
           fontSize: window.innerWidth < 768 ? '24px' : '32px'
         }}>
-          Import Result
+{t('result.title')}
         </Title>
         <Text type="secondary" style={{ 
           fontSize: window.innerWidth < 768 ? '14px' : '16px',
           lineHeight: '1.5'
         }}>
-          Your mapping configuration is ready
+{t('result.subtitle')}
         </Text>
       </div>
 
@@ -157,34 +199,34 @@ const ResultStep: React.FC<ResultStepProps> = ({
               backgroundColor: '#10b981' 
             }} />
             <Text strong style={{ color: '#065f46' }}>
-              Import Completed!
+{t('result.importCompleted')}
             </Text>
           </div>
           <Row gutter={16}>
             <Col span={6}>
               <Statistic
-                title="Total Records"
+                title={translations.totalRecords}
                 value={importResult.totalRecords}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Successful"
+                title={translations.successful}
                 value={importResult.successCount}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Failed"
+                title={translations.failed}
                 value={importResult.errorCount}
                 valueStyle={{ color: '#ef4444' }}
               />
             </Col>
             <Col span={6}>
               <Statistic
-                title="Success Rate"
+                title={translations.successRate}
                 value={importResult.totalRecords > 0 ? Math.round((importResult.successCount / importResult.totalRecords) * 100) : 0}
                 suffix="%"
                 valueStyle={{ color: '#10b981' }}
@@ -200,7 +242,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
           title={
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ExclamationCircleOutlined style={{ color: '#ef4444' }} />
-              <span>Error Details ({importResult.errorCount} records)</span>
+              <span>{translations.errorDetails} ({importResult.errorCount} {translations.totalRecords.toLowerCase()})</span>
             </div>
           }
           style={{ 
@@ -219,7 +261,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
               header={
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <Text strong style={{ color: '#dc2626' }}>
-                    Show Failed Records
+                    {translations.showFailedRecords}
                   </Text>
                   <Tag color="red">{importResult.errorCount}</Tag>
                 </div>
@@ -233,17 +275,17 @@ const ResultStep: React.FC<ResultStepProps> = ({
                  scroll={{ x: true }}
                 columns={[
                   {
-                    title: 'Row No',
+                    title: translations.rowNo,
                     dataIndex: 'rowNumber',
                     key: 'rowNumber',
                     width: 80,
                     render: (rowNumber) => (
-                      <Tag color="red">Row {rowNumber}</Tag>
+                      <Tag color="red">{translations.row} {rowNumber}</Tag>
                     )
                   },
 
                   {
-                    title: 'Original Data',
+                    title: translations.originalData,
                     dataIndex: 'originalData',
                     key: 'originalData',
                     render: (originalData) => (
@@ -262,14 +304,14 @@ const ResultStep: React.FC<ResultStepProps> = ({
                     )
                   },
                   {
-                    title: 'Error Messages',
+                    title: translations.errorMessages,
                     dataIndex: 'errors',
                     key: 'errors',
                     render: (errors) => {
                       console.log('Error data received:', errors);
                       return (
                         <div>
-                          {errors && errors.map((error: string, index: number) => (
+                          {errors && translateErrors(errors).map((error: string, index: number) => (
                             <Tag 
                               key={index} 
                               color="red" 
@@ -295,7 +337,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Import Type"
+              title={translations.importType}
               value={importType}
               prefix={<FileTextOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0', fontSize: '16px' }}
@@ -305,7 +347,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Total Columns"
+              title={translations.totalColumns}
               value={totalRows}
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -315,7 +357,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <Col xs={24} sm={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
-              title="Mapped Fields"
+              title={translations.mappedFields}
               value={mappings.length}
               prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -329,7 +371,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileTextOutlined style={{ color: '#9b51e0' }} />
-            <span>JSON Configuration</span>
+            <span>{translations.jsonConfiguration}</span>
           </div>
         }
         extra={
@@ -340,7 +382,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
               size="small"
               style={{ borderRadius: '6px' }}
             >
-              Copy
+              {translations.copy}
             </Button>
             <Button 
               icon={<DownloadOutlined />} 
@@ -348,7 +390,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
               size="small"
               style={{ borderRadius: '6px' }}
             >
-              Download
+              {translations.download}
             </Button>
             <Button 
               type="primary"
@@ -361,7 +403,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
                 borderRadius: '6px'
               }}
             >
-              {excelFile ? 'Send to Grispi' : 'Send to Backend'}
+              {excelFile ? translations.sendToGrispi : translations.sendToBackend}
             </Button>
           </Space>
         }
@@ -406,7 +448,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Previous
+          {translations.previous}
         </Button>
         
         <div style={{ 
@@ -417,7 +459,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
           fontSize: window.innerWidth < 768 ? '12px' : '14px',
           order: window.innerWidth < 768 ? -1 : 0
         }}>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
         </div>
         
         <Button 
@@ -433,7 +475,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Start New Import
+          {translations.startNewImport}
         </Button>
       </div>
 
@@ -454,14 +496,14 @@ const ResultStep: React.FC<ResultStepProps> = ({
             backgroundColor: '#10b981' 
           }} />
           <Text style={{ color: '#065f46', fontSize: '14px' }}>
-            Import process completed successfully! You can copy the JSON configuration, download it as a file, or send it to the backend for processing.
+            {translations.importCompletedMessage}
           </Text>
         </div>
       </Card>
 
       {/* Backend Import Modal */}
       <Modal
-        title={excelFile ? "Send to Grispi" : "Send to Backend"}
+        title={excelFile ? translations.modalTitle : translations.modalTitleBackend}
         open={importModalVisible}
         onOk={() => {
           console.log('Modal OK clicked');
@@ -473,8 +515,8 @@ const ResultStep: React.FC<ResultStepProps> = ({
         }}
         onCancel={() => setImportModalVisible(false)}
         confirmLoading={importing}
-        okText={excelFile ? "Send to Grispi" : "Send"}
-        cancelText="Cancel"
+        okText={excelFile ? translations.sendToGrispi : translations.send}
+        cancelText={translations.cancel}
         okButtonProps={{
           style: {
             backgroundColor: '#9b51e0',
@@ -485,17 +527,17 @@ const ResultStep: React.FC<ResultStepProps> = ({
         <p>
           {excelFile ? (
             <>
-              <Text strong>{importType}</Text> Excel data will be sent to Grispi according to mapping configuration.
+              <Text strong>{importType}</Text> {translations.modalMessage}
             </>
           ) : (
             <>
-              <Text strong>{importType}</Text> mapping configuration will be sent to the backend for processing.
+              <Text strong>{importType}</Text> {translations.modalMessageBackend}
             </>
           )}
         </p>
         <p>
           <Text type="secondary">
-            Total {mappings.length} fields mapped and {totalRows} columns configured.
+            {translations.modalFooter}
           </Text>
         </p>
       </Modal>

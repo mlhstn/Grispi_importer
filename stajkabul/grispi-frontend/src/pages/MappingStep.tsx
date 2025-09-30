@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Space, message, Row, Col, Statistic, Modal, Input, List, Tag, Tooltip } from 'antd';
 import { LinkOutlined, ArrowRightOutlined, CheckCircleOutlined, BookOutlined, StarOutlined, DeleteOutlined, EditOutlined, SaveOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { ExcelData, GrispiField, MappingField } from '../types';
 import MappingRow from '../components/MappingRow';
 import { GRISPI_FIELDS } from '../types';
@@ -27,6 +28,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
   currentStep,
   totalSteps
 }) => {
+  const { t } = useTranslation();
   const [mappings, setMappings] = useState<Record<string, string>>({});
   const [mappedCount, setMappedCount] = useState(0);
   const [templates, setTemplates] = useState<any[]>([]);
@@ -37,6 +39,41 @@ const MappingStep: React.FC<MappingStepProps> = ({
   const [loading, setLoading] = useState(false);
   const [requiredFields, setRequiredFields] = useState<Record<string, any>>({});
   const grispiFields = GRISPI_FIELDS[importType as keyof typeof GRISPI_FIELDS] || [];
+
+  // Translation strings
+  const translations = {
+    title: t('mapping.title'),
+    subtitle: t('mapping.subtitle'),
+    importType: t('mapping.importType'),
+    totalColumns: t('mapping.totalColumns'),
+    mappedFields: t('mapping.mappedFields'),
+    requiredFields: t('mapping.requiredFields'),
+    instruction: t('mapping.instruction'),
+    loadTemplate: t('mapping.loadTemplate'),
+    saveTemplate: t('mapping.saveTemplate'),
+    columnMappings: t('mapping.columnMappings'),
+    previous: t('mapping.previous'),
+    next: t('mapping.next'),
+    step: t('mapping.step'),
+    of: t('mapping.of'),
+    loadTemplateModal: t('mapping.loadTemplateModal'),
+    saveTemplateModal: t('mapping.saveTemplateModal'),
+    templateName: t('mapping.templateName'),
+    templateDescription: t('mapping.templateDescription'),
+    templateNamePlaceholder: t('mapping.templateNamePlaceholder'),
+    templateDescriptionPlaceholder: t('mapping.templateDescriptionPlaceholder'),
+    save: t('mapping.save'),
+    cancel: t('mapping.cancel'),
+    load: t('mapping.load'),
+    default: t('mapping.default'),
+    setAsDefault: t('mapping.setAsDefault'),
+    delete: t('mapping.delete'),
+    noDescription: t('mapping.noDescription'),
+    created: t('mapping.created'),
+    mapAtLeastOneField: t('mapping.mapAtLeastOneField'),
+    requiredFieldsMissing: t('mapping.requiredFieldsMissing'),
+    pleaseMapRequiredFields: t('mapping.pleaseMapRequiredFields')
+  };
 
       // Calculate mapping status of required fields
   const requiredFieldMappings = Object.entries(requiredFields)
@@ -111,10 +148,10 @@ const MappingStep: React.FC<MappingStepProps> = ({
         
         setMappings(newMappings);
         setTemplateModalVisible(false);
-        message.success('Şablon başarıyla yüklendi!');
+        message.success(t('mapping.templateLoaded') as any);
       }
     } catch (error) {
-      message.error('Şablon yüklenirken hata oluştu!');
+      message.error(t('mapping.templateLoadError') as any);
     } finally {
       setLoading(false);
     }
@@ -122,7 +159,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
   const handleSaveTemplate = async () => {
     if (!templateName.trim()) {
-      message.error('Şablon adı gerekli!');
+      message.error(t('mapping.templateNameRequired') as any);
       return;
     }
 
@@ -145,14 +182,14 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
       const response = await apiService.saveMappingTemplate(templateData);
       if (response.success) {
-        message.success('Şablon başarıyla kaydedildi!');
+        message.success(t('mapping.templateSaved') as any);
         setSaveTemplateModalVisible(false);
         setTemplateName('');
         setTemplateDescription('');
         loadTemplates(); // Şablonları yeniden yükle
       }
     } catch (error) {
-      message.error('Şablon kaydedilirken hata oluştu!');
+      message.error(t('mapping.templateSaveError') as any);
     } finally {
       setLoading(false);
     }
@@ -162,11 +199,11 @@ const MappingStep: React.FC<MappingStepProps> = ({
     try {
       const response = await apiService.deleteTemplate(templateId);
       if (response.success) {
-        message.success('Şablon silindi!');
+        message.success(t('mapping.templateDeleted') as any);
         loadTemplates();
       }
     } catch (error) {
-      message.error('Şablon silinirken hata oluştu!');
+      message.error(t('mapping.templateDeleteError') as any);
     }
   };
 
@@ -174,11 +211,11 @@ const MappingStep: React.FC<MappingStepProps> = ({
     try {
       const response = await apiService.setTemplateAsDefault(templateId);
       if (response.success) {
-        message.success('Şablon varsayılan olarak ayarlandı!');
+        message.success(t('mapping.templateSetAsDefault') as any);
         loadTemplates();
       }
     } catch (error) {
-      message.error('Şablon ayarlanırken hata oluştu!');
+      message.error(t('mapping.templateSetError') as any);
     }
   };
 
@@ -202,7 +239,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
        });
 
     if (mappedFields.length === 0) {
-      message.warning('You need to map at least one field!');
+      message.warning(t('mapping.mapAtLeastOneField') as any);
       return;
     }
 
@@ -225,8 +262,8 @@ const MappingStep: React.FC<MappingStepProps> = ({
       );
       
       message.error(
-        `Required fields missing: ${missingFieldLabels.join(', ')}. ` +
-        'Please map all required fields.'
+        `${t('mapping.requiredFieldsMissing')} ${missingFieldLabels.join(', ')}. ` +
+        t('mapping.pleaseMapRequiredFields') as any
       );
       return;
     }
@@ -249,13 +286,13 @@ const MappingStep: React.FC<MappingStepProps> = ({
            marginBottom: '8px',
            fontSize: window.innerWidth < 768 ? '24px' : '32px'
          }}>
-           Field Mapping
+           {translations.title}
          </Title>
          <Text type="secondary" style={{ 
            fontSize: window.innerWidth < 768 ? '14px' : '16px',
            lineHeight: '1.5'
          }}>
-           Map your Excel columns to Grispi fields
+           {translations.subtitle}
          </Text>
        </div>
 
@@ -266,7 +303,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
          <Col xs={24} sm={12} md={6}>
            <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
-               title="Import Type"
+               title={translations.importType}
                value={importType}
                prefix={<LinkOutlined style={{ color: '#9b51e0' }} />}
                valueStyle={{ color: '#9b51e0', fontSize: '16px' }}
@@ -276,7 +313,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
          <Col xs={24} sm={12} md={6}>
            <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
-               title="Total Columns"
+               title={translations.totalColumns}
                value={data.headers.length}
                prefix={<CheckCircleOutlined style={{ color: '#9b51e0' }} />}
                valueStyle={{ color: '#9b51e0' }}
@@ -286,7 +323,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
          <Col xs={24} sm={12} md={6}>
            <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
-               title="Mapped Fields"
+               title={translations.mappedFields}
                value={mappedCount}
                prefix={<ArrowRightOutlined style={{ color: '#9b51e0' }} />}
                valueStyle={{ color: '#9b51e0' }}
@@ -296,7 +333,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
          <Col xs={24} sm={12} md={6}>
            <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
              <Statistic
-               title="Required Fields"
+               title={translations.requiredFields}
                value={`${mappedRequiredFields.length}/${requiredFieldMappings.length}`}
                prefix={<CheckCircleOutlined style={{ color: requiredFieldsProgress === 100 ? '#10b981' : '#f59e0b' }} />}
                valueStyle={{ color: requiredFieldsProgress === 100 ? '#10b981' : '#f59e0b' }}
@@ -323,8 +360,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
               backgroundColor: '#9b51e0' 
             }} />
             <Text style={{ color: '#581c87', fontSize: '14px' }}>
-              Select the appropriate Grispi field for each Excel column. 
-              You can save and load mapping templates for future use.
+              {translations.instruction}
             </Text>
           </div>
           <Space>
@@ -333,7 +369,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
               onClick={() => setTemplateModalVisible(true)}
               disabled={templates.length === 0}
             >
-              Load Template ({templates.length})
+              {translations.loadTemplate} ({templates.length})
             </Button>
             <Button 
               type="primary"
@@ -342,7 +378,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
               disabled={mappedCount === 0}
               style={{ backgroundColor: '#9b51e0', borderColor: '#9b51e0' }}
             >
-              Save Template
+              {translations.saveTemplate}
             </Button>
           </Space>
         </div>
@@ -353,7 +389,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <LinkOutlined style={{ color: '#9b51e0' }} />
-            <span>Column Mappings</span>
+            <span>{translations.columnMappings}</span>
           </div>
         }
         style={{ border: '1px solid #e5e7eb', marginBottom: '24px', borderRadius: '12px' }}
@@ -393,7 +429,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Previous
+          {translations.previous}
         </Button>
         
         <div style={{ 
@@ -404,7 +440,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
           fontSize: window.innerWidth < 768 ? '12px' : '14px',
           order: window.innerWidth < 768 ? -1 : 0
         }}>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
         </div>
         
         <Button 
@@ -423,7 +459,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Next
+          {translations.next}
         </Button>
       </div>
 
@@ -445,8 +481,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
               backgroundColor: '#10b981' 
             }} />
                          <Text style={{ color: '#065f46', fontSize: '14px' }}>
-               {mappedCount} of {data.headers.length} fields mapped. 
-               {mappedCount === data.headers.length ? ' All fields are mapped!' : ' Continue mapping or proceed to summary.'}
+               {mappedCount} {mappedCount === data.headers.length ? t('mapping.mappingProgress') : t('mapping.mappingProgressPartial')}
 
              </Text>
           </div>
@@ -455,7 +490,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
       {/* Load Template Modal */}
       <Modal
-        title="Load Mapping Template"
+        title={translations.loadTemplateModal}
         open={templateModalVisible}
         onCancel={() => setTemplateModalVisible(false)}
         footer={null}
@@ -474,9 +509,9 @@ const MappingStep: React.FC<MappingStepProps> = ({
                   loading={loading}
                   style={{ backgroundColor: '#9b51e0', borderColor: '#9b51e0' }}
                 >
-                  Load
+                  {translations.load}
                 </Button>,
-                <Tooltip key="default" title={template.isDefault ? "Default Template" : "Set as Default"}>
+                <Tooltip key="default" title={template.isDefault ? `${translations.default} Template` : translations.setAsDefault}>
                   <Button 
                     icon={<StarOutlined />} 
                     size="small"
@@ -498,14 +533,14 @@ const MappingStep: React.FC<MappingStepProps> = ({
                 title={
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {template.name}
-                    {template.isDefault && <Tag color="gold">Default</Tag>}
+                    {template.isDefault && <Tag color="gold">{translations.default}</Tag>}
                   </div>
                 }
                 description={
                   <div>
-                    <div>{template.description || 'No description'}</div>
+                    <div>{template.description || translations.noDescription}</div>
                     <div style={{ fontSize: '12px', color: '#666', marginTop: '4px' }}>
-                      Created: {new Date(template.createdAt).toLocaleDateString()}
+                      {translations.created} {new Date(template.createdAt).toLocaleDateString()}
                     </div>
                   </div>
                 }
@@ -517,7 +552,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
 
       {/* Save Template Modal */}
       <Modal
-        title="Save Mapping Template"
+        title={translations.saveTemplateModal}
         open={saveTemplateModalVisible}
         onOk={handleSaveTemplate}
         onCancel={() => {
@@ -526,25 +561,25 @@ const MappingStep: React.FC<MappingStepProps> = ({
           setTemplateDescription('');
         }}
         confirmLoading={loading}
-        okText="Save Template"
-        cancelText="Cancel"
+        okText={translations.saveTemplate}
+        cancelText={translations.cancel}
         okButtonProps={{
           style: { backgroundColor: '#9b51e0', borderColor: '#9b51e0' }
         }}
       >
         <div style={{ marginBottom: '16px' }}>
-          <Text strong>Template Name *</Text>
+          <Text strong>{translations.templateName} *</Text>
           <Input
-            placeholder="Enter template name"
+            placeholder={translations.templateNamePlaceholder}
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
             style={{ marginTop: '8px' }}
           />
         </div>
         <div>
-          <Text strong>Description</Text>
+          <Text strong>{translations.templateDescription}</Text>
           <Input.TextArea
-            placeholder="Enter template description (optional)"
+            placeholder={translations.templateDescriptionPlaceholder}
             value={templateDescription}
             onChange={(e) => setTemplateDescription(e.target.value)}
             rows={3}
@@ -553,7 +588,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
         </div>
         <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '6px' }}>
           <Text type="secondary">
-            This template will save {mappedCount} mapped fields for {importType} import type.
+            {t('mapping.templateInfo', { mappedCount, importType })}
           </Text>
         </div>
       </Modal>

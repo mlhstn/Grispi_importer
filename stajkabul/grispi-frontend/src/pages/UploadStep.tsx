@@ -3,6 +3,7 @@ import { Upload, Select, Card, Typography, message, Button, Space } from 'antd';
 import { InboxOutlined, CloudUploadOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { ImportType } from '../types';
 import { apiService } from '../services/api';
+import { useTranslation } from 'react-i18next';
 
 const { Dragger } = Upload;
 const { Option } = Select;
@@ -17,6 +18,7 @@ interface UploadStepProps {
 }
 
 const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPrevious, currentStep, totalSteps }) => {
+  const { t } = useTranslation();
   const [importType, setImportType] = useState<ImportType>('User');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
@@ -26,7 +28,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
     const isCSV = file.type === 'text/csv';
     
     if (!isExcel && !isCSV) {
-      message.error('Sadece Excel (.xlsx) veya CSV dosyaları yükleyebilirsiniz!');
+      message.error(t('upload.errorFileType'));
       return false;
     }
 
@@ -36,14 +38,14 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
     try {
       const response = await apiService.previewExcel(file);
       if (response.success) {
-        message.success('Dosya başarıyla yüklendi!');
+        message.success(t('upload.success'));
         onFileUpload(file, importType);
       } else {
-        message.error(`Backend hatası: ${response.error}`);
+        message.error(`${t('upload.backendError')}: ${response.error}`);
       }
     } catch (error) {
-              message.error('Backend connection failed! File will be processed locally.');
-      onFileUpload(file, importType); // Fallback to local processing
+      message.error(t('upload.backendFailed'));
+      onFileUpload(file, importType);
     } finally {
       setLoading(false);
     }
@@ -67,13 +69,14 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           marginBottom: '8px',
           fontSize: window.innerWidth < 768 ? '24px' : '32px'
         }}>
-          Import Your Data
+          {t('upload.title')}
         </Title>
         <Text type="secondary" style={{ 
           fontSize: window.innerWidth < 768 ? '14px' : '16px',
           lineHeight: '1.5'
         }}>
-        Upload Excel or CSV files to import users, tickets, or custom fields        </Text>
+          {t('upload.subtitle')}
+        </Text>
       </div>
 
       {/* Import Type Selection */}
@@ -86,7 +89,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
       >
         <div style={{ marginBottom: '16px' }}>
           <Text strong style={{ color: '#1f2937', fontSize: '16px' }}>
-            Import Type
+            {t('upload.importType')}
           </Text>
         </div>
         <Select
@@ -95,9 +98,9 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           style={{ width: '100%' }}
           size="large"
         >
-         <Option value="User">👤 User</Option>
-          <Option value="Ticket">🎫 Ticket</Option>
-          <Option value="CustomField">⚙️ Custom Field</Option>
+          <Option value="User">{t('importTypes.user')}</Option>
+          <Option value="Ticket">{t('importTypes.ticket')}</Option>
+          <Option value="CustomField">{t('importTypes.customField')}</Option>
         </Select>
       </Card>
 
@@ -120,10 +123,10 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
             <InboxOutlined style={{ color: '#9b51e0', fontSize: '48px' }} />
           </p>
           <p className="ant-upload-text" style={{ fontSize: '18px', color: '#1f2937' }}>
-            Click or drag file to this area to upload
+            {t('upload.dragDrop')}
           </p>
           <p className="ant-upload-hint" style={{ color: '#6b7280' }}>
-            Support for Excel (.xlsx) and CSV files only
+            {t('upload.support')}
           </p>
         </Dragger>
       </Card>
@@ -147,11 +150,11 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
             }} />
             <div>
               <Text strong style={{ color: '#065f46' }}>
-                File Selected: {selectedFile.name}
+                {t('upload.fileSelected')}: {selectedFile.name}
               </Text>
               <br />
               <Text type="secondary" style={{ fontSize: '12px' }}>
-                Size: {(selectedFile.size / 1024).toFixed(2)} KB
+                {t('upload.size')}: {(selectedFile.size / 1024).toFixed(2)} KB
               </Text>
             </div>
           </div>
@@ -175,8 +178,7 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           }} />
           <div>
             <Text style={{ color: '#581c87', fontSize: '14px' }}>
-              <strong>Instructions:</strong> Select your import type and upload an Excel or CSV file. 
-              The system will automatically preview your data and guide you through the mapping process.
+              <strong>{t('upload.instructions')}</strong> {t('upload.instructionsText')}
             </Text>
           </div>
         </div>
@@ -203,41 +205,41 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
             height: window.innerWidth < 768 ? '36px' : '40px',
             paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
             paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          Previous
-        </Button>
-        
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '8px',
-          color: '#6b7280',
-          fontSize: window.innerWidth < 768 ? '12px' : '14px',
-          order: window.innerWidth < 768 ? -1 : 0
-        }}>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
-        </div>
-        
-        <Button 
-          type="primary"
-          icon={<RightOutlined />}
-          onClick={onNext}
-          disabled={!selectedFile}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
-          style={{
-            borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          Next
-        </Button>
+          width: window.innerWidth < 768 ? '100%' : 'auto'
+        }}
+      >
+        {t('navigation.previous')}
+      </Button>
+      
+      <div style={{ 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '8px',
+        color: '#6b7280',
+        fontSize: window.innerWidth < 768 ? '12px' : '14px',
+        order: window.innerWidth < 768 ? -1 : 0
+      }}>
+        <span>{t('navigation.step')} {currentStep + 1} {t('navigation.of')} {totalSteps}</span>
+      </div>
+      
+      <Button 
+        type="primary"
+        icon={<RightOutlined />}
+        onClick={onNext}
+        disabled={!selectedFile}
+        size={window.innerWidth < 768 ? 'middle' : 'large'}
+        style={{
+          borderRadius: '8px',
+          height: window.innerWidth < 768 ? '36px' : '40px',
+          paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
+          paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+          backgroundColor: '#9b51e0',
+          borderColor: '#9b51e0',
+          width: window.innerWidth < 768 ? '100%' : 'auto'
+        }}
+      >
+        {t('navigation.next')}
+      </Button>
       </div>
     </div>
   );

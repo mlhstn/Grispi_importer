@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Steps, Layout, Typography, Menu, Avatar, Dropdown, Space } from 'antd';
+import { Steps, Layout, Typography, Menu, Avatar, Dropdown, Space, Button } from 'antd';
+import './i18n/config';
 import { 
   UploadOutlined, 
   EyeOutlined, 
@@ -14,8 +15,11 @@ import {
   BarChartOutlined,
   QuestionCircleOutlined,
   BellOutlined,
-  UserSwitchOutlined
+  UserSwitchOutlined,
+  GlobalOutlined
 } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { useLanguage } from './hooks/useLanguage';
 import UploadStep from './pages/UploadStep';
 import DataPreviewStep from './pages/DataPreviewStep';
 import MappingStep from './pages/MappingStep';
@@ -31,6 +35,8 @@ const { Title } = Typography;
 const { Step } = Steps;
 
 function App() {
+  const { t } = useTranslation();
+  const { currentLanguage, changeLanguage, supportedLanguages, getCurrentLanguageInfo } = useLanguage();
   const [currentStep, setCurrentStep] = useState(0);
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [excelFile, setExcelFile] = useState<File | null>(null);
@@ -71,7 +77,7 @@ function App() {
 
   const steps = [
     {
-      title: 'Upload',
+      title: t('steps.upload'),
       icon: <UploadOutlined />,
       content: <UploadStep 
         onFileUpload={handleFileUpload} 
@@ -82,7 +88,7 @@ function App() {
       />
     },
     {
-      title: 'Preview',
+      title: t('steps.preview'),
       icon: <EyeOutlined />,
       content: excelData ? (
         <DataPreviewStep 
@@ -96,7 +102,7 @@ function App() {
       ) : null
     },
     {
-      title: 'Mapping',
+      title: t('steps.mapping'),
       icon: <LinkOutlined />,
       content: excelData ? (
         <MappingStep 
@@ -111,7 +117,7 @@ function App() {
       ) : null
     },
     {
-      title: 'Summary',
+      title: t('steps.summary'),
       icon: <CheckCircleOutlined />,
       content: <SummaryStep 
         importType={importType} 
@@ -125,7 +131,7 @@ function App() {
       />
     },
     {
-      title: 'Result',
+      title: t('steps.result'),
       icon: <FileTextOutlined />,
       content: <ResultStep 
         importType={importType} 
@@ -145,37 +151,37 @@ function App() {
     {
       key: 'getting-started',
       icon: <div style={{ fontSize: '12px', fontWeight: 'bold' }}>1/11</div>,
-      label: 'Getting Started',
+      label: t('menu.gettingStarted'),
       children: []
     },
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: t('menu.dashboard'),
       children: []
     },
     {
       key: 'create',
       icon: <PlusOutlined />,
-      label: 'Create',
+      label: t('menu.create'),
       children: []
     },
     {
       key: 'contacts',
       icon: <UserOutlined />,
-      label: 'Contacts',
+      label: t('menu.contacts'),
       children: []
     },
     {
       key: 'send',
       icon: <SendOutlined />,
-      label: 'Send',
+      label: t('menu.send'),
       children: []
     },
     {
       key: 'insights',
       icon: <BarChartOutlined />,
-      label: 'Insights',
+      label: t('menu.insights'),
       children: []
     }
   ];
@@ -185,17 +191,35 @@ function App() {
   const userMenuItems = [
     {
       key: 'profile',
-      label: 'Profile',
+      label: t('menu.profile'),
     },
     {
       key: 'settings',
-      label: 'Settings',
+      label: t('menu.settings'),
     },
     {
       key: 'logout',
-      label: 'Logout',
+      label: t('menu.logout'),
     },
   ];
+
+  const languageMenu = {
+    items: supportedLanguages.map(language => ({
+      key: language.code,
+      label: (
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'space-between',
+          fontWeight: language.code === currentLanguage ? 'bold' : 'normal'
+        }}>
+          <span>{language.flag} {language.nativeName}</span>
+          {language.code === currentLanguage && <span style={{ color: '#9b51e0' }}>✓</span>}
+        </div>
+      ),
+      onClick: () => changeLanguage(language.code)
+    }))
+  };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -222,7 +246,7 @@ function App() {
               fontSize: window.innerWidth < 768 ? '16px' : '18px'
             }}
           >
-            Grispi Import
+            {t('app.title')}
           </Title>
         </div>
         
@@ -265,7 +289,7 @@ function App() {
                 fontSize: window.innerWidth < 768 ? '16px' : '18px'
               }}
             >
-              Import Contacts
+              {t('app.importContacts')}
             </Title>
           </div>
           
@@ -276,6 +300,17 @@ function App() {
                 <BellOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
               </>
             )}
+            
+            <Dropdown menu={languageMenu} placement="bottomRight">
+              <Button 
+                icon={<GlobalOutlined />} 
+                type="text"
+                style={{ color: 'var(--grispi-text-secondary)' }}
+              >
+{getCurrentLanguageInfo()?.flag || '🌐'} {currentLanguage.toUpperCase()}
+              </Button>
+            </Dropdown>
+            
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Space style={{ cursor: 'pointer' }}>
                 <Avatar size="small" icon={<UserSwitchOutlined />} />

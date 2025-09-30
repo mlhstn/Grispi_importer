@@ -1,6 +1,7 @@
 import React from 'react';
 import { Table, Card, Typography, Tag, Row, Col, Statistic, Button } from 'antd';
 import { FileTextOutlined, BarChartOutlined, EyeOutlined, ArrowRightOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
 import { ExcelData } from '../types';
 
 const { Title, Text } = Typography;
@@ -15,6 +16,25 @@ interface DataPreviewStepProps {
 }
 
 const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onNext, onPrevious, currentStep, totalSteps }) => {
+  const { t } = useTranslation();
+
+  // Translation strings
+  const translations = {
+    title: t('preview.title'),
+    subtitle: t('preview.subtitle'),
+    totalRows: t('preview.totalRows'),
+    totalColumns: t('preview.totalColumns'),
+    previewRows: t('preview.previewRows'),
+    dataPreview: t('preview.dataPreview'),
+    firstRows: t('preview.firstRows'),
+    previous: t('preview.previous'),
+    next: t('preview.next'),
+    step: t('preview.step'),
+    of: t('preview.of'),
+    showingRows: t('preview.showingRows'),
+    useNavigationButtons: t('preview.useNavigationButtons')
+  };
+
   const columns = data.headers.map((header: string, index: number) => ({
     title: header,
     dataIndex: index,
@@ -46,13 +66,13 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
           marginBottom: '8px',
           fontSize: window.innerWidth < 768 ? '24px' : '32px'
         }}>
-          Data Preview
+          {translations.title}
         </Title>
         <Text type="secondary" style={{ 
           fontSize: window.innerWidth < 768 ? '14px' : '16px',
           lineHeight: '1.5'
         }}>
-          Review your data before mapping
+          {translations.subtitle}
         </Text>
       </div>
 
@@ -66,7 +86,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             height: '120px'
           }}>
             <Statistic
-              title="Total Rows"
+              title={translations.totalRows}
               value={data.rows.length}
               prefix={<BarChartOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -81,7 +101,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             height: '120px'
           }}>
             <Statistic
-              title="Total Columns"
+              title={translations.totalColumns}
               value={data.headers.length}
               prefix={<FileTextOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -96,7 +116,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             height: '120px'
           }}>
             <Statistic
-              title="Preview Rows"
+              title={translations.previewRows}
               value="5"
               prefix={<EyeOutlined style={{ color: '#9b51e0' }} />}
               valueStyle={{ color: '#9b51e0' }}
@@ -110,7 +130,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
         title={
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <FileTextOutlined style={{ color: '#9b51e0' }} />
-            <span>Data Preview (First 5 rows)</span>
+            <span>{translations.dataPreview} ({translations.firstRows.replace('{count}', '5')})</span>
           </div>
         }
         style={{ border: '1px solid #e5e7eb', marginBottom: '24px', borderRadius: '12px' }}
@@ -148,7 +168,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Previous
+          {translations.previous}
         </Button>
         
         <div style={{ 
@@ -159,7 +179,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
           fontSize: window.innerWidth < 768 ? '12px' : '14px',
           order: window.innerWidth < 768 ? -1 : 0
         }}>
-          <span>Step {currentStep + 1} of {totalSteps}</span>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
         </div>
         
         <Button 
@@ -177,7 +197,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             width: window.innerWidth < 768 ? '100%' : 'auto'
           }}
         >
-          Next
+          {translations.next}
         </Button>
       </div>
 
@@ -197,8 +217,8 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
             backgroundColor: '#9b51e0' 
           }} />
           <Text style={{ color: '#581c87', fontSize: '14px' }}>
-            Showing first 5 rows of {data.rows.length} total rows. 
-            Use the navigation buttons to proceed to field mapping.
+            {translations.showingRows.replace('{total}', data.rows.length.toString())} 
+            {translations.useNavigationButtons}
           </Text>
         </div>
       </Card>
