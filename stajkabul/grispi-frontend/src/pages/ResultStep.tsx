@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic, Table, Tag, Collapse } from 'antd';
+import { Card, Typography, Button, Space, message, Modal, Row, Col, Statistic, Table, Tag, Collapse, Input, Form } from 'antd';
 import { CopyOutlined, DownloadOutlined, UploadOutlined, FileTextOutlined, CheckCircleOutlined, ExclamationCircleOutlined, LeftOutlined, RightOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { translateErrorMessage } from '../utils/errorTranslator';
-import { MappingField, ImportType } from '../types';
+import { MappingField, ImportType, ExcelData } from '../types';
 import { apiService } from '../services/api';
+import { generateMappedCSV, csvToFile } from '../utils/csvGenerator';
 
 interface ErrorDetail {
   rowNumber: number;
@@ -20,7 +21,8 @@ interface ResultStepProps {
   mappings: MappingField[];
   totalRows: number;
   onReset: () => void;
-  excelFile?: File; // Excel dosyasını da al
+  excelFile?: File;
+  excelData?: ExcelData; // Excel data (headers ve rows)
   onNext: () => void;
   onPrevious: () => void;
   currentStep: number;
@@ -33,6 +35,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
   totalRows, 
   onReset,
   excelFile,
+  excelData,
   onNext,
   onPrevious,
   currentStep,
@@ -42,6 +45,9 @@ const ResultStep: React.FC<ResultStepProps> = ({
   const [importing, setImporting] = useState(false);
   const [importModalVisible, setImportModalVisible] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
+  const [grispiModalVisible, setGrispiModalVisible] = useState(false);
+  const [tenantId, setTenantId] = useState('help');
+  const [subject, setSubject] = useState(`${importType} Import Dosyası`);
 
   // Translation strings
   const translations = {
@@ -154,6 +160,58 @@ const ResultStep: React.FC<ResultStepProps> = ({
     } catch (error) {
       console.error('Import error:', error);
       message.error(t('result.importFailed') + (error instanceof Error ? error.message : 'Unknown error') as any);
+    } finally {
+      setImporting(false);
+    }
+  };
+
+  const handleSendToGrispi = async () => {
+    if (!excelData) {
+      message.error('Excel verisi bulunamadı');
+      return;
+    }
+
+    if (!tenantId.trim()) {
+      message.error('Tenant ID boş olamaz');
+      return;
+    }
+
+    if (!subject.trim()) {
+      message.error('Subject boş olamaz');
+      return;
+    }
+
+    setImporting(true);
+    
+    try {
+      // CSV oluştur
+      const csvContent = generateMappedCSV(excelData.headers, excelData.rows, mappings);
+      const csvFile = csvToFile(csvContent, `${importType.toLowerCase()}-import-${Date.now()}.csv`);
+      
+      // HTML body oluştur
+      const htmlBody = `
+        <div style="font-family: Arial, sans-serif;">
+          <h3>Import Dosyası</h3>
+          <p><strong>Import Türü:</strong> ${importType}</p>
+          <p><strong>Toplam Satır:</strong> ${excelData.rows.length}</p>
+          <p><strong>Maplenen Alan Sayısı:</strong> ${mappings.length}</p>
+          <hr/>
+          <p>CSV dosyası ektedir.</p>
+        </div>
+      `;
+      
+      // Grispi'ye gönder
+      const response = await apiService.uploadToGrispi(csvFile, tenantId, subject, htmlBody);
+      
+      if (response.success) {
+        message.success('Dosya başarıyla Grispi\'ye gönderildi!');
+        setGrispiModalVisible(false);
+      } else {
+        message.error(`Grispi gönderimi başarısız: ${response.error}`);
+      }
+    } catch (error) {
+      console.error('Grispi upload error:', error);
+      message.error('Grispi\'ye gönderim sırasında hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
     } finally {
       setImporting(false);
     }
@@ -403,8 +461,23 @@ const ResultStep: React.FC<ResultStepProps> = ({
                 borderRadius: '6px'
               }}
             >
-              {excelFile ? translations.sendToGrispi : translations.sendToBackend}
+              {translations.sendToBackend}
             </Button>
+            {excelData && (
+              <Button 
+                type="primary"
+                icon={<UploadOutlined />} 
+                onClick={() => setGrispiModalVisible(true)}
+                size="small"
+                style={{ 
+                  backgroundColor: '#10b981',
+                  borderColor: '#10b981',
+                  borderRadius: '6px'
+                }}
+              >
+                Grispi'ye Gönder
+              </Button>
+            )}
           </Space>
         }
         style={{ border: '1px solid #e5e7eb', marginBottom: '24px', borderRadius: '12px' }}
@@ -540,6 +613,55 @@ const ResultStep: React.FC<ResultStepProps> = ({
             {translations.modalFooter}
           </Text>
         </p>
+      </Modal>
+
+      {/* Grispi Upload Modal */}
+      <Modal
+        title="Grispi'ye Gönder"
+        open={grispiModalVisible}
+        onOk={handleSendToGrispi}
+        onCancel={() => setGrispiModalVisible(false)}
+        confirmLoading={importing}
+        okText="Gönder"
+        cancelText="İptal"
+        okButtonProps={{
+          style: {
+            backgroundColor: '#10b981',
+            borderColor: '#10b981'
+          }
+        }}
+      >
+        <div style={{ marginBottom: '16px' }}>
+          <Text type="secondary">
+            CSV dosyası oluşturulup Grispi API'sine ticket olarak gönderilecek.
+          </Text>
+        </div>
+        <Form layout="vertical">
+          <Form.Item label="Tenant ID" required>
+            <Input 
+              value={tenantId}
+              onChange={(e) => setTenantId(e.target.value)}
+              placeholder="help"
+            />
+          </Form.Item>
+          <Form.Item label="Ticket Subject" required>
+            <Input 
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              placeholder={`${importType} Import Dosyası`}
+            />
+          </Form.Item>
+        </Form>
+        <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
+          <Text strong style={{ color: '#065f46' }}>Özet:</Text>
+          <div style={{ marginTop: '8px' }}>
+            <Text style={{ fontSize: '12px', color: '#065f46' }}>
+              • Toplam Satır: {excelData?.rows.length || 0}<br/>
+              • Maplenen Alan: {mappings.length}<br/>
+              • Import Türü: {importType}
+            </Text>
+          </div>
+        </div>
       </Modal>
     </div>
   );

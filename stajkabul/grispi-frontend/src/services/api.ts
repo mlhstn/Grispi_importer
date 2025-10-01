@@ -298,5 +298,63 @@ export const apiService = {
         error: error instanceof Error ? error.message : 'Bilinmeyen hata' 
       };
     }
+  },
+
+  // Grispi API'sine ticket gönder
+  async uploadToGrispi(
+    csvFile: File,
+    tenantId: string,
+    subject: string,
+    htmlBody: string
+  ): Promise<ApiResponse<any>> {
+    try {
+      const formData = new FormData();
+      
+      // Ticket verisini hazırla
+      const ticketData = {
+        fields: [
+          { key: "ts.subject", value: subject },
+          { key: "ts.form", value: 14 },
+          { key: "ts.untrusted_end_user", value: ":team+import@grispi.com:" }
+        ],
+        comment: {
+          body: htmlBody,
+          channel: "USER_FORM",
+          creator: [
+            { key: "us.email", value: "team+import@grispi.com" },
+            { key: "us.full_name", value: "Grispi Import User" }
+          ],
+          publicVisible: false
+        },
+        currentAttachments: {
+          inlineImages: [],
+          attachments: []
+        }
+      };
+
+      formData.append('ticketFromClientString', JSON.stringify(ticketData));
+      formData.append('attachments', csvFile);
+
+      const response = await fetch('https://api.grispi.com/user-forms/tickets', {
+        method: 'POST',
+        headers: {
+          'tenantId': tenantId
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return { success: true, data };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Bilinmeyen hata' 
+      };
+    }
   }
 }; 

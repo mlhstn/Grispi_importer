@@ -139,6 +139,7 @@ function App() {
         totalRows={excelData?.headers.length || 0} 
         onReset={handleReset}
         excelFile={excelFile || undefined}
+        excelData={excelData || undefined}
         onNext={() => setCurrentStep(0)}
         onPrevious={() => setCurrentStep(3)}
         currentStep={currentStep}
