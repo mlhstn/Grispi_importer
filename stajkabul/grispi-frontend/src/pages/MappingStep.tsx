@@ -351,23 +351,31 @@ const MappingStep: React.FC<MappingStepProps> = ({
           borderRadius: '12px'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+          justifyContent: 'space-between', 
+          alignItems: window.innerWidth < 768 ? 'stretch' : 'center',
+          gap: window.innerWidth < 768 ? '16px' : '0'
+        }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div style={{ 
               width: '8px', 
               height: '8px', 
               borderRadius: '50%', 
-              backgroundColor: '#9b51e0' 
+              backgroundColor: '#9b51e0',
+              flexShrink: 0
             }} />
-            <Text style={{ color: '#581c87', fontSize: '14px' }}>
+            <Text style={{ color: '#581c87', fontSize: '14px', lineHeight: '1.6' }}>
               {translations.instruction}
             </Text>
           </div>
-          <Space>
+          <Space direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'} style={{ width: window.innerWidth < 768 ? '100%' : 'auto' }}>
             <Button 
               icon={<BookOutlined />} 
               onClick={() => setTemplateModalVisible(true)}
               disabled={templates.length === 0}
+              style={{ width: window.innerWidth < 768 ? '100%' : 'auto' }}
             >
               {translations.loadTemplate} ({templates.length})
             </Button>
@@ -376,7 +384,11 @@ const MappingStep: React.FC<MappingStepProps> = ({
               icon={<SaveOutlined />} 
               onClick={() => setSaveTemplateModalVisible(true)}
               disabled={mappedCount === 0}
-              style={{ backgroundColor: '#9b51e0', borderColor: '#9b51e0' }}
+              style={{ 
+                backgroundColor: '#9b51e0', 
+                borderColor: '#9b51e0',
+                width: window.innerWidth < 768 ? '100%' : 'auto'
+              }}
             >
               {translations.saveTemplate}
             </Button>
@@ -406,68 +418,11 @@ const MappingStep: React.FC<MappingStepProps> = ({
         ))}
       </Card>
 
-      {/* Navigation Buttons */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginTop: '32px',
-        paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb',
-        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
-        gap: window.innerWidth < 768 ? '16px' : '0'
-      }}>
-        <Button 
-          icon={<LeftOutlined />}
-          onClick={onPrevious}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
-          style={{
-            borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          {translations.previous}
-        </Button>
-        
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '8px',
-          color: '#6b7280',
-          fontSize: window.innerWidth < 768 ? '12px' : '14px',
-          order: window.innerWidth < 768 ? -1 : 0
-        }}>
-          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
-        </div>
-        
-        <Button 
-          type="primary"
-          icon={<RightOutlined />}
-          onClick={handleContinue}
-          disabled={mappedCount === 0 || (requiredFieldMappings.length > 0 && requiredFieldsProgress < 100)}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
-          style={{
-            borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            backgroundColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
-            borderColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          {translations.next}
-        </Button>
-      </div>
-
       {/* Progress Info */}
       {mappedCount > 0 && (
         <Card 
           style={{ 
-            marginTop: '24px', 
+            marginBottom: '24px', 
             border: '1px solid #d1fae5',
             backgroundColor: '#f0fdf4',
             borderRadius: '12px'
@@ -478,15 +433,74 @@ const MappingStep: React.FC<MappingStepProps> = ({
               width: '8px', 
               height: '8px', 
               borderRadius: '50%', 
-              backgroundColor: '#10b981' 
+              backgroundColor: '#10b981',
+              flexShrink: 0
             }} />
-                         <Text style={{ color: '#065f46', fontSize: '14px' }}>
-               {mappedCount} {mappedCount === data.headers.length ? t('mapping.mappingProgress') : t('mapping.mappingProgressPartial')}
-
-             </Text>
+            <Text style={{ color: '#065f46', fontSize: '14px', lineHeight: '1.6' }}>
+              {mappedCount} {mappedCount === data.headers.length ? t('mapping.mappingProgress') : t('mapping.mappingProgressPartial')}
+            </Text>
           </div>
         </Card>
       )}
+
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '20px 0',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        gap: window.innerWidth < 768 ? '16px' : '0'
+      }}>
+        <Button 
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {translations.previous}
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '15px',
+          fontWeight: 500,
+          order: window.innerWidth < 768 ? -1 : 0
+        }}>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+          onClick={handleContinue}
+          disabled={mappedCount === 0 || (requiredFieldMappings.length > 0 && requiredFieldsProgress < 100)}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            backgroundColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
+            borderColor: (requiredFieldMappings.length === 0 || requiredFieldsProgress === 100) ? '#9b51e0' : '#d1d5db',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {translations.next}
+        </Button>
+      </div>
 
       {/* Load Template Modal */}
       <Modal
@@ -494,13 +508,20 @@ const MappingStep: React.FC<MappingStepProps> = ({
         open={templateModalVisible}
         onCancel={() => setTemplateModalVisible(false)}
         footer={null}
-        width={600}
+        width={window.innerWidth < 768 ? '90%' : 600}
+        centered
+        style={{ maxWidth: window.innerWidth < 768 ? 'calc(100vw - 32px)' : '600px' }}
       >
         <List
           dataSource={templates}
           renderItem={(template) => (
             <List.Item
-              actions={[
+              style={{
+                flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+                alignItems: window.innerWidth < 768 ? 'stretch' : 'center',
+                gap: window.innerWidth < 768 ? '12px' : '0'
+              }}
+              actions={window.innerWidth < 768 ? undefined : [
                 <Button 
                   key="load" 
                   type="primary" 
@@ -531,7 +552,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
             >
               <List.Item.Meta
                 title={
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                     {template.name}
                     {template.isDefault && <Tag color="gold">{translations.default}</Tag>}
                   </div>
@@ -545,6 +566,38 @@ const MappingStep: React.FC<MappingStepProps> = ({
                   </div>
                 }
               />
+              {window.innerWidth < 768 && (
+                <div style={{ display: 'flex', gap: '8px', width: '100%', marginTop: '12px' }}>
+                  <Button 
+                    type="primary" 
+                    size="middle"
+                    onClick={() => handleLoadTemplate(template.id)}
+                    loading={loading}
+                    style={{ 
+                      backgroundColor: '#9b51e0', 
+                      borderColor: '#9b51e0',
+                      flex: 1
+                    }}
+                  >
+                    {translations.load}
+                  </Button>
+                  <Tooltip title={template.isDefault ? `${translations.default} Template` : translations.setAsDefault}>
+                    <Button 
+                      icon={<StarOutlined />} 
+                      size="middle"
+                      type={template.isDefault ? "primary" : "default"}
+                      onClick={() => handleSetAsDefault(template.id)}
+                      style={template.isDefault ? { backgroundColor: '#f59e0b', borderColor: '#f59e0b' } : {}}
+                    />
+                  </Tooltip>
+                  <Button 
+                    icon={<DeleteOutlined />} 
+                    size="middle"
+                    danger
+                    onClick={() => handleDeleteTemplate(template.id)}
+                  />
+                </div>
+              )}
             </List.Item>
           )}
         />
@@ -566,6 +619,9 @@ const MappingStep: React.FC<MappingStepProps> = ({
         okButtonProps={{
           style: { backgroundColor: '#9b51e0', borderColor: '#9b51e0' }
         }}
+        width={window.innerWidth < 768 ? '90%' : 600}
+        centered
+        style={{ maxWidth: window.innerWidth < 768 ? 'calc(100vw - 32px)' : '600px' }}
       >
         <div style={{ marginBottom: '16px' }}>
           <Text strong>{translations.templateName} *</Text>
@@ -574,6 +630,7 @@ const MappingStep: React.FC<MappingStepProps> = ({
             value={templateName}
             onChange={(e) => setTemplateName(e.target.value)}
             style={{ marginTop: '8px' }}
+            size={window.innerWidth < 768 ? 'middle' : 'large'}
           />
         </div>
         <div>
@@ -586,8 +643,13 @@ const MappingStep: React.FC<MappingStepProps> = ({
             style={{ marginTop: '8px' }}
           />
         </div>
-        <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f5f5f5', borderRadius: '6px' }}>
-          <Text type="secondary">
+        <div style={{ 
+          marginTop: '16px', 
+          padding: '12px', 
+          backgroundColor: '#f5f5f5', 
+          borderRadius: '6px' 
+        }}>
+          <Text type="secondary" style={{ fontSize: window.innerWidth < 768 ? '13px' : '14px' }}>
             {t('mapping.templateInfo', { mappedCount, importType })}
           </Text>
         </div>

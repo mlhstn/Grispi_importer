@@ -78,11 +78,8 @@ public class CustomFieldService implements ImportService {
                 }
             }
             
-            System.out.println("CustomFieldService - Column mappings: " + columnMappings);
-            
             // Excel verilerini gerçekten oku
             List<Map<String, Object>> excelData = readExcelData(file);
-            System.out.println("CustomFieldService - Excel data size: " + excelData.size());
             
             int successCount = 0;
             int errorCount = 0;
@@ -90,27 +87,20 @@ public class CustomFieldService implements ImportService {
             
             for (Map<String, Object> row : excelData) {
                 try {
-                    System.out.println("CustomFieldService - Processing row: " + row);
                     CustomField customField = customFieldMapper.mapWithMapping(row, columnMappings);
-                    System.out.println("CustomFieldService - Mapped field: " + customField.getKey() + ", " + customField.getName());
                     
                     CustomFieldValidationResult validationResult = customFieldValidator.validate(customField);
-                    System.out.println("CustomFieldService - Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
                     
                     if (validationResult.isValid()) {
-                        saveCustomField(customField);
+                        // DB'ye kayıt yapma - sadece validasyon
                         successCount++;
-                        System.out.println("CustomFieldService - Saved successfully: " + customField.getKey());
                     } else {
                         errorCount++;
                         errors.add("Row validation failed: " + validationResult.getErrors());
-                        System.out.println("CustomFieldService - Validation failed: " + validationResult.getErrors());
                     }
                 } catch (Exception e) {
                     errorCount++;
                     errors.add("Row processing error: " + e.getMessage());
-                    System.out.println("CustomFieldService - Exception: " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
             

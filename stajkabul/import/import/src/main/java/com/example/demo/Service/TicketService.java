@@ -5,7 +5,6 @@ import com.example.demo.Repository.TicketRepository;
 import com.example.demo.Mapper.TicketMapper;
 import com.example.demo.Validation.TicketValidator;
 import com.example.demo.Validation.TicketValidationResult;
-import com.example.demo.Service.ExcelService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -108,34 +107,34 @@ public class TicketService implements ImportService {
             List<String> errors = new ArrayList<>();
             List<Map<String, Object>> errorDetails = new ArrayList<>();
             
+            // Dosya içi duplicate kontrolü için Set
+            java.util.Set<String> seenExternalIds = new java.util.HashSet<>();
+            
             for (int i = 0; i < transformedData.size(); i++) {
                 Map<String, Object> row = transformedData.get(i);
                 try {
                     Ticket ticket = ticketMapper.mapWithMapping(row, columnMappings);
                     
-                    // Duplicate externalId kontrolü
-                    if (ticket.getExternalId() != null) {
-                        Optional<Ticket> existingTicket = ticketRepository.findAll().stream()
-                            .filter(t -> ticket.getExternalId().equals(t.getExternalId()))
-                            .findFirst();
-                        
-                        if (existingTicket.isPresent()) {
+                    // Dosya içi External ID duplicate kontrolü
+                    if (ticket.getExternalId() != null && !ticket.getExternalId().trim().isEmpty()) {
+                        if (seenExternalIds.contains(ticket.getExternalId())) {
                             errorCount++;
-                            errors.add("Row " + (i + 1) + ": Duplicate externalId: " + ticket.getExternalId());
+                            errors.add("Row " + (i + 1) + ": Duplicate externalId in file: " + ticket.getExternalId());
                             
                             Map<String, Object> errorDetail = new HashMap<>();
                             errorDetail.put("rowNumber", i + 1);
                             errorDetail.put("originalData", row);
-                            errorDetail.put("errors", List.of("Duplicate externalId: " + ticket.getExternalId()));
+                            errorDetail.put("errors", List.of("Duplicate externalId in file: " + ticket.getExternalId()));
                             errorDetails.add(errorDetail);
                             continue;
                         }
+                        seenExternalIds.add(ticket.getExternalId());
                     }
                     
                     TicketValidationResult validationResult = ticketValidator.validate(ticket);
                     
                     if (validationResult.isValid()) {
-                        saveTicket(ticket);
+                        // DB'ye kayıt yapma - sadece validasyon
                         successCount++;
                     } else {
                         errorCount++;

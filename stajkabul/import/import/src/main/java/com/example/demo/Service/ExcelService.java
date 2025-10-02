@@ -163,7 +163,6 @@ public class ExcelService {
         
         // Mapping boşsa, tüm Excel verilerini direkt kullan
         if (mappings == null || mappings.isEmpty()) {
-            System.out.println("Mapping boş, Excel verilerini direkt kullanıyoruz");
             for (List<String> row : excelData.getRows()) {
                 Map<String, Object> transformedRow = new HashMap<>();
                 for (int i = 0; i < excelData.getHeaders().size() && i < row.size(); i++) {

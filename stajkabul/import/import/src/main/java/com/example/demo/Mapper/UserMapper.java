@@ -82,8 +82,6 @@ public class UserMapper {
             }
         }
         
-        System.out.println("UserMapper - emailsStr: " + emailsStr + ", row keys: " + row.keySet());
-        
         if (emailsStr != null && !emailsStr.isBlank()) {
             List<String> emails = Arrays.asList(emailsStr.split(","));
             user.setEmails(trimList(emails));

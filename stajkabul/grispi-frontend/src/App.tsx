@@ -214,7 +214,7 @@ function App() {
           justifyContent: 'space-between',
           fontWeight: language.code === currentLanguage ? 'bold' : 'normal'
         }}>
-          <span>{language.flag} {language.nativeName}</span>
+          <span>{language.nativeName}</span>
           {language.code === currentLanguage && <span style={{ color: '#9b51e0' }}>✓</span>}
         </div>
       ),
@@ -304,11 +304,13 @@ function App() {
             
             <Dropdown menu={languageMenu} placement="bottomRight">
               <Button 
-                icon={<GlobalOutlined />} 
+                icon={<GlobalOutlined />}
                 type="text"
-                style={{ color: 'var(--grispi-text-secondary)' }}
+                style={{ 
+                  color: 'var(--grispi-text-secondary)'
+                }}
               >
-{getCurrentLanguageInfo()?.flag || '🌐'} {currentLanguage.toUpperCase()}
+                {getCurrentLanguageInfo()?.nativeName || currentLanguage.toUpperCase()}
               </Button>
             </Dropdown>
             

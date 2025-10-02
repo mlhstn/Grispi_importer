@@ -31,8 +31,7 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
     next: t('preview.next'),
     step: t('preview.step'),
     of: t('preview.of'),
-    showingRows: t('preview.showingRows'),
-    useNavigationButtons: t('preview.useNavigationButtons')
+    showingRows: t('preview.showingRows')
   };
 
   const columns = data.headers.map((header: string, index: number) => ({
@@ -145,27 +144,49 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
         />
       </Card>
 
+      {/* Info Card */}
+      <Card 
+        style={{ 
+          border: '1px solid #e9d5ff',
+          backgroundColor: '#faf5ff',
+          borderRadius: '12px',
+          marginBottom: '24px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ 
+            width: '8px', 
+            height: '8px', 
+            borderRadius: '50%', 
+            backgroundColor: '#9b51e0',
+            flexShrink: 0
+          }} />
+          <Text style={{ color: '#581c87', fontSize: '14px', lineHeight: '1.6' }}>
+            {translations.showingRows.replace('{total}', data.rows.length.toString())}
+          </Text>
+        </div>
+      </Card>
+
       {/* Navigation Buttons */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginTop: '32px',
-        paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb',
+        padding: '20px 0',
         flexDirection: window.innerWidth < 768 ? 'column' : 'row',
         gap: window.innerWidth < 768 ? '16px' : '0'
       }}>
         <Button 
           icon={<LeftOutlined />}
           onClick={onPrevious}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
+          size="large"
           style={{
             borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
           }}
         >
           {translations.previous}
@@ -176,7 +197,8 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
           alignItems: 'center', 
           gap: '8px',
           color: '#6b7280',
-          fontSize: window.innerWidth < 768 ? '12px' : '14px',
+          fontSize: '15px',
+          fontWeight: 500,
           order: window.innerWidth < 768 ? -1 : 0
         }}>
           <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
@@ -185,43 +207,23 @@ const DataPreviewStep: React.FC<DataPreviewStepProps> = ({ data, onContinue, onN
         <Button 
           type="primary"
           icon={<RightOutlined />}
+          iconPosition="end"
           onClick={onNext}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
+          size="large"
           style={{
             borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
             backgroundColor: '#9b51e0',
             borderColor: '#9b51e0',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
           }}
         >
           {translations.next}
         </Button>
       </div>
-
-      {/* Info Card */}
-      <Card 
-        style={{ 
-          border: '1px solid #e9d5ff',
-          backgroundColor: '#faf5ff',
-          borderRadius: '12px'
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div style={{ 
-            width: '8px', 
-            height: '8px', 
-            borderRadius: '50%', 
-            backgroundColor: '#9b51e0' 
-          }} />
-          <Text style={{ color: '#581c87', fontSize: '14px' }}>
-            {translations.showingRows.replace('{total}', data.rows.length.toString())} 
-            {translations.useNavigationButtons}
-          </Text>
-        </div>
-      </Card>
     </div>
   );
 };

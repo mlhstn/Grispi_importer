@@ -25,7 +25,6 @@ public class ExcelController {
             Map<String, Object> previewData = (Map) excelService.readExcelPreview(file, 5);
             return ResponseEntity.ok(previewData);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of("error", "Dosya okunamadı: " + e.getMessage()));
         }
     }

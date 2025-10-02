@@ -5,8 +5,6 @@ import com.example.demo.Repository.OrganizationRepository;
 import com.example.demo.Mapper.OrganizationMapper;
 import com.example.demo.Validation.OrganizationValidator;
 import com.example.demo.Validation.OrganizationValidationResult;
-import com.example.demo.Service.ImportService;
-import com.example.demo.Service.ExcelService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +16,6 @@ import java.util.Optional;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Arrays;
 
 @Service
 public class OrganizationService implements ImportService {
@@ -86,7 +83,7 @@ public class OrganizationService implements ImportService {
                 OrganizationValidationResult validationResult = organizationValidator.validate(organization);
                 
                 if (validationResult.isValid()) {
-                    organizationRepository.save(organization);
+                    // DB'ye kayıt yapma - sadece validasyon
                     result.setSuccessCount(result.getSuccessCount() + 1);
                 } else {
                     result.setErrorCount(result.getErrorCount() + 1);
@@ -122,8 +119,6 @@ public class OrganizationService implements ImportService {
                 }
             }
             
-            System.out.println("OrganizationService - Column mappings: " + columnMappings);
-            
             // Excel verilerini oku
             ExcelService excelService = new ExcelService();
             ExcelService.ExcelData excelData = excelService.readFullExcel(file);
@@ -135,41 +130,35 @@ public class OrganizationService implements ImportService {
             
             List<Map<String, Object>> errorDetails = new ArrayList<>();
             
+            // Dosya içi duplicate kontrolü için Set
+            java.util.Set<String> seenExternalIds = new java.util.HashSet<>();
+            
             for (int i = 0; i < transformedData.size(); i++) {
                 Map<String, Object> row = transformedData.get(i);
                 try {
-                    System.out.println("OrganizationService - Processing row: " + row);
                     Organization organization = organizationMapper.mapWithMapping(row, columnMappings);
-                    System.out.println("OrganizationService - Mapped organization: " + organization.getExternalId() + ", " + organization.getName());
                     
-                    // Duplicate externalId kontrolü
-                    if (organization.getExternalId() != null) {
-                        Optional<Organization> existingOrganization = organizationRepository.findAll().stream()
-                            .filter(o -> organization.getExternalId().equals(o.getExternalId()))
-                            .findFirst();
-                        
-                        if (existingOrganization.isPresent()) {
+                    // Dosya içi External ID duplicate kontrolü
+                    if (organization.getExternalId() != null && !organization.getExternalId().trim().isEmpty()) {
+                        if (seenExternalIds.contains(organization.getExternalId())) {
                             errorCount++;
-                            errors.add("Row " + (i + 1) + ": Duplicate externalId: " + organization.getExternalId());
+                            errors.add("Row " + (i + 1) + ": Duplicate externalId in file: " + organization.getExternalId());
                             
                             Map<String, Object> errorDetail = new HashMap<>();
                             errorDetail.put("rowNumber", i + 1);
                             errorDetail.put("originalData", row);
-                            errorDetail.put("errors", List.of("Duplicate externalId: " + organization.getExternalId()));
+                            errorDetail.put("errors", List.of("Duplicate externalId in file: " + organization.getExternalId()));
                             errorDetails.add(errorDetail);
-                            
-                            System.out.println("OrganizationService - Duplicate externalId: " + organization.getExternalId());
                             continue;
                         }
+                        seenExternalIds.add(organization.getExternalId());
                     }
                     
                     OrganizationValidationResult validationResult = organizationValidator.validate(organization);
-                    System.out.println("OrganizationService - Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
                     
                     if (validationResult.isValid()) {
-                        saveOrganization(organization);
+                        // DB'ye kayıt yapma - sadece validasyon
                         successCount++;
-                        System.out.println("OrganizationService - Saved successfully: " + organization.getExternalId());
                     } else {
                         errorCount++;
                         errors.add("Row " + (i + 1) + " validation failed: " + String.join(", ", validationResult.getErrors()));
@@ -180,8 +169,6 @@ public class OrganizationService implements ImportService {
                         errorDetail.put("originalData", row);
                         errorDetail.put("errors", validationResult.getErrors());
                         errorDetails.add(errorDetail);
-                        
-                        System.out.println("OrganizationService - Validation failed: " + validationResult.getErrors());
                     }
                 } catch (Exception e) {
                     errorCount++;
@@ -193,9 +180,6 @@ public class OrganizationService implements ImportService {
                     errorDetail.put("originalData", row);
                                              errorDetail.put("errors", List.of("Processing error: " + e.getMessage()));
                     errorDetails.add(errorDetail);
-                    
-                    System.out.println("OrganizationService - Exception: " + e.getMessage());
-                    e.printStackTrace();
                 }
             }
             

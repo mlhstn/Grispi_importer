@@ -86,9 +86,6 @@ public class UniversalImportController {
                     .body("Desteklenmeyen import türü: " + importType);
             }
             
-            // Mapping verilerini logla
-            System.out.println("Mapping verileri alındı: " + mappingData);
-            
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("message", importType + " mapping verileri başarıyla alındı");
@@ -147,10 +144,6 @@ public class UniversalImportController {
             @RequestParam("mappings") String mappingsJson) {
         
         try {
-            System.out.println("Import request received: " + importType);
-            System.out.println("File: " + file.getOriginalFilename() + ", size: " + file.getSize());
-            System.out.println("Mappings JSON: " + mappingsJson);
-            
             if (file.isEmpty()) {
                 Map<String, Object> errorResponse = new HashMap<>();
                 errorResponse.put("success", false);
@@ -167,7 +160,6 @@ public class UniversalImportController {
             
             // Excel dosyasını oku
             ExcelService.ExcelData excelData = excelService.readFullExcel(file);
-            System.out.println("Excel data read: " + excelData.getHeaders().size() + " headers, " + excelData.getRows().size() + " rows");
             
             // Mapping JSON'ını parse et
             List<Map<String, Object>> mappings = new ArrayList<>();
@@ -178,22 +170,17 @@ public class UniversalImportController {
                     new TypeReference<List<Map<String, Object>>>() {}
                 );
                 mappings = parsedMappings;
-                System.out.println("Parsed mappings: " + mappings.size() + " mappings");
             } catch (Exception e) {
-                System.out.println("Mapping parsing error: " + e.getMessage());
                 // Hata durumunda boş liste kullan
                 mappings = new ArrayList<>();
             }
             
             // Excel verilerini mapping'e göre dönüştür
             List<Map<String, Object>> transformedData = excelService.transformDataWithMapping(excelData, mappings);
-            System.out.println("Transformed data: " + transformedData.size() + " records");
             
             // ImportServiceFactory'den uygun servisi al
             ImportService importService = serviceFactory.getService(importType);
             Map<String, Object> result = importService.importExcelWithMapping(file, mappingsJson);
-            
-            System.out.println("Import result: " + result.get("successCount") + " success, " + result.get("errorCount") + " errors");
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -207,8 +194,6 @@ public class UniversalImportController {
             return ResponseEntity.ok(response);
             
         } catch (Exception e) {
-            System.out.println("Import error: " + e.getMessage());
-            e.printStackTrace();
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("success", false);
             errorResponse.put("error", "Excel import hatası: " + e.getMessage());

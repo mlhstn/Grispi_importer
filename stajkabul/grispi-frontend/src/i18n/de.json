@@ -163,8 +163,7 @@
     "next": "Weiter",
     "step": "Schritt",
     "of": "von",
-    "showingRows": "Zeige erste 5 Zeilen von {total} Gesamtzeilen.",
-    "useNavigationButtons": "Verwenden Sie die Navigationsschaltflächen, um zur Feldzuordnung zu gelangen."
+    "showingRows": "Zeige erste 5 Zeilen von {total} Gesamtzeilen. Verwenden Sie die Navigationsschaltflächen, um zur Feldzuordnung zu gelangen."
   },
   "errors": {
     "externalIdExists": "Externe ID existiert bereits: {externalId}",

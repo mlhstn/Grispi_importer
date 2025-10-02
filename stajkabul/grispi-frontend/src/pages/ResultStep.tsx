@@ -43,7 +43,6 @@ const ResultStep: React.FC<ResultStepProps> = ({
 }) => {
   const { t } = useTranslation();
   const [importing, setImporting] = useState(false);
-  const [importModalVisible, setImportModalVisible] = useState(false);
   const [importResult, setImportResult] = useState<any>(null);
   const [grispiModalVisible, setGrispiModalVisible] = useState(false);
   const [tenantId, setTenantId] = useState('help');
@@ -119,54 +118,8 @@ const ResultStep: React.FC<ResultStepProps> = ({
     message.success(t('result.downloadSuccess') as any);
   };
 
-  const handleImportToBackend = async () => {
-    setImporting(true);
-    try {
-      const response = await apiService.importWithMapping(mappingResult);
-
-      if (response.success) {
-        message.success(`${importType} ${t('result.importSuccess')}` as any);
-        setImportModalVisible(false);
-      } else {
-        message.error(`Import error: ${response.error}`);
-      }
-    } catch (error) {
-      message.error(t('result.backendConnectionFailed') as any);
-    } finally {
-      setImporting(false);
-    }
-  };
-
-  const handleImportExcelToDatabase = async () => {
-    if (!excelFile) {
-      message.error(t('result.excelFileNotFound') as any);
-      return;
-    }
-
-    console.log('Import başlatılıyor...', { importType, mappings, excelFile });
-    setImporting(true);
-    
-    try {
-      const response = await apiService.importExcelWithMapping(excelFile, importType, mappings);
-      console.log('API response:', response);
-
-      if (response.success) {
-        setImportResult(response.data || response);
-        message.success(`${importType} ${t('result.importSuccess')}` as any);
-        setImportModalVisible(false);
-      } else {
-        message.error(`${t('result.importError')} ${response.error}` as any);
-      }
-    } catch (error) {
-      console.error('Import error:', error);
-      message.error(t('result.importFailed') + (error instanceof Error ? error.message : 'Unknown error') as any);
-    } finally {
-      setImporting(false);
-    }
-  };
-
   const handleSendToGrispi = async () => {
-    if (!excelData) {
+    if (!excelData || !excelFile) {
       message.error('Excel verisi bulunamadı');
       return;
     }
@@ -184,36 +137,52 @@ const ResultStep: React.FC<ResultStepProps> = ({
     setImporting(true);
     
     try {
-      // CSV oluştur
+      // 1. Önce backend'e gönder - validasyon yap
+      const importResponse = await apiService.importExcelWithMapping(excelFile, importType, mappings);
+      
+      if (!importResponse.success) {
+        message.error(`Validasyon hatası: ${importResponse.error}`);
+        setImporting(false);
+        return;
+      }
+
+      // 2. Validasyon sonuçlarını kaydet
+      const validationResult = importResponse.data;
+      setImportResult(validationResult);
+      
+      // 3. Başarılı kayıtların CSV'sini oluştur
       const csvContent = generateMappedCSV(excelData.headers, excelData.rows, mappings);
       const csvFile = csvToFile(csvContent, `${importType.toLowerCase()}-import-${Date.now()}.csv`);
       
-      // HTML body oluştur
+      // 4. HTML body oluştur (sonuçlarla birlikte)
       const htmlBody = `
         <div style="font-family: Arial, sans-serif;">
           <h3>Import Dosyası</h3>
           <p><strong>Import Türü:</strong> ${importType}</p>
-          <p><strong>Toplam Satır:</strong> ${excelData.rows.length}</p>
+          <p><strong>Toplam Satır:</strong> ${validationResult.totalRecords}</p>
+          <p><strong>Başarılı:</strong> <span style="color: green;">${validationResult.successCount}</span></p>
+          <p><strong>Başarısız:</strong> <span style="color: red;">${validationResult.errorCount}</span></p>
+          <p><strong>Başarı Oranı:</strong> ${validationResult.totalRecords > 0 ? Math.round((validationResult.successCount / validationResult.totalRecords) * 100) : 0}%</p>
           <p><strong>Maplenen Alan Sayısı:</strong> ${mappings.length}</p>
           <hr/>
-          <p>CSV dosyası ektedir.</p>
+          <p>CSV dosyası (tüm kayıtlar) ektedir.</p>
         </div>
       `;
       
-      // Grispi'ye gönder
-      const response = await apiService.uploadToGrispi(csvFile, tenantId, subject, htmlBody);
+      // 5. Grispi'ye gönder
+      const grispiResponse = await apiService.uploadToGrispi(csvFile, tenantId, subject, htmlBody);
       
-      if (response.success) {
-        message.success('Dosya başarıyla Grispi\'ye gönderildi!');
-        setGrispiModalVisible(false);
+      if (grispiResponse.success) {
+        message.success(`Grispi'ye gönderildi! Ticket ID: ${grispiResponse.data || 'Bilinmiyor'}`);
       } else {
-        message.error(`Grispi gönderimi başarısız: ${response.error}`);
+        message.error(`Grispi gönderimi başarısız: ${grispiResponse.error}`);
       }
     } catch (error) {
       console.error('Grispi upload error:', error);
-      message.error('Grispi\'ye gönderim sırasında hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
+      message.error('İşlem sırasında hata oluştu: ' + (error instanceof Error ? error.message : 'Bilinmeyen hata'));
     } finally {
       setImporting(false);
+      setGrispiModalVisible(false);
     }
   };
 
@@ -260,29 +229,29 @@ const ResultStep: React.FC<ResultStepProps> = ({
 {t('result.importCompleted')}
             </Text>
           </div>
-          <Row gutter={16}>
-            <Col span={6}>
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} md={6}>
               <Statistic
                 title={translations.totalRecords}
                 value={importResult.totalRecords}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Statistic
                 title={translations.successful}
                 value={importResult.successCount}
                 valueStyle={{ color: '#10b981' }}
               />
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Statistic
                 title={translations.failed}
                 value={importResult.errorCount}
                 valueStyle={{ color: '#ef4444' }}
               />
             </Col>
-            <Col span={6}>
+            <Col xs={24} sm={12} md={6}>
               <Statistic
                 title={translations.successRate}
                 value={importResult.totalRecords > 0 ? Math.round((importResult.successCount / importResult.totalRecords) * 100) : 0}
@@ -392,7 +361,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
 
       {/* Statistics Cards */}
       <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title={translations.importType}
@@ -402,7 +371,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title={translations.totalColumns}
@@ -412,7 +381,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
             />
           </Card>
         </Col>
-        <Col xs={24} sm={8}>
+        <Col xs={24} sm={12} md={8}>
           <Card style={{ textAlign: 'center', border: '1px solid #e5e7eb', borderRadius: '12px', height: '120px' }}>
             <Statistic
               title={translations.mappedFields}
@@ -433,12 +402,18 @@ const ResultStep: React.FC<ResultStepProps> = ({
           </div>
         }
         extra={
-          <Space>
+          <Space 
+            direction={window.innerWidth < 768 ? 'vertical' : 'horizontal'}
+            style={{ width: window.innerWidth < 768 ? '100%' : 'auto' }}
+          >
             <Button 
               icon={<CopyOutlined />} 
               onClick={handleCopy}
               size="small"
-              style={{ borderRadius: '6px' }}
+              style={{ 
+                borderRadius: '6px',
+                width: window.innerWidth < 768 ? '100%' : 'auto'
+              }}
             >
               {translations.copy}
             </Button>
@@ -446,22 +421,12 @@ const ResultStep: React.FC<ResultStepProps> = ({
               icon={<DownloadOutlined />} 
               onClick={handleDownload}
               size="small"
-              style={{ borderRadius: '6px' }}
-            >
-              {translations.download}
-            </Button>
-            <Button 
-              type="primary"
-              icon={<UploadOutlined />} 
-              onClick={() => setImportModalVisible(true)}
-              size="small"
               style={{ 
-                backgroundColor: '#9b51e0',
-                borderColor: '#9b51e0',
-                borderRadius: '6px'
+                borderRadius: '6px',
+                width: window.innerWidth < 768 ? '100%' : 'auto'
               }}
             >
-              {translations.sendToBackend}
+              {translations.download}
             </Button>
             {excelData && (
               <Button 
@@ -472,7 +437,8 @@ const ResultStep: React.FC<ResultStepProps> = ({
                 style={{ 
                   backgroundColor: '#10b981',
                   borderColor: '#10b981',
-                  borderRadius: '6px'
+                  borderRadius: '6px',
+                  width: window.innerWidth < 768 ? '100%' : 'auto'
                 }}
               >
                 Grispi'ye Gönder
@@ -498,64 +464,10 @@ const ResultStep: React.FC<ResultStepProps> = ({
         </pre>
       </Card>
 
-      {/* Navigation Buttons */}
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginTop: '32px',
-        paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb',
-        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
-        gap: window.innerWidth < 768 ? '16px' : '0'
-      }}>
-        <Button 
-          icon={<LeftOutlined />}
-          onClick={onPrevious}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
-          style={{
-            borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          {translations.previous}
-        </Button>
-        
-        <div style={{ 
-          display: 'flex', 
-          alignItems: 'center', 
-          gap: '8px',
-          color: '#6b7280',
-          fontSize: window.innerWidth < 768 ? '12px' : '14px',
-          order: window.innerWidth < 768 ? -1 : 0
-        }}>
-          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
-        </div>
-        
-        <Button 
-          onClick={onReset} 
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
-          style={{
-            borderColor: '#d1d5db',
-            color: '#6b7280',
-            borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-            width: window.innerWidth < 768 ? '100%' : 'auto'
-          }}
-        >
-          {translations.startNewImport}
-        </Button>
-      </div>
-
       {/* Success Info */}
       <Card 
         style={{ 
-          marginTop: '24px', 
+          marginBottom: '24px', 
           border: '1px solid #d1fae5',
           backgroundColor: '#f0fdf4',
           borderRadius: '12px'
@@ -566,54 +478,69 @@ const ResultStep: React.FC<ResultStepProps> = ({
             width: '8px', 
             height: '8px', 
             borderRadius: '50%', 
-            backgroundColor: '#10b981' 
+            backgroundColor: '#10b981',
+            flexShrink: 0
           }} />
-          <Text style={{ color: '#065f46', fontSize: '14px' }}>
+          <Text style={{ color: '#065f46', fontSize: '14px', lineHeight: '1.6' }}>
             {translations.importCompletedMessage}
           </Text>
         </div>
       </Card>
 
-      {/* Backend Import Modal */}
-      <Modal
-        title={excelFile ? translations.modalTitle : translations.modalTitleBackend}
-        open={importModalVisible}
-        onOk={() => {
-          console.log('Modal OK clicked');
-          if (excelFile) {
-            handleImportExcelToDatabase();
-          } else {
-            handleImportToBackend();
-          }
-        }}
-        onCancel={() => setImportModalVisible(false)}
-        confirmLoading={importing}
-        okText={excelFile ? translations.sendToGrispi : translations.send}
-        cancelText={translations.cancel}
-        okButtonProps={{
-          style: {
-            backgroundColor: '#9b51e0',
-            borderColor: '#9b51e0'
-          }
-        }}
-      >
-        <p>
-          {excelFile ? (
-            <>
-              <Text strong>{importType}</Text> {translations.modalMessage}
-            </>
-          ) : (
-            <>
-              <Text strong>{importType}</Text> {translations.modalMessageBackend}
-            </>
-          )}
-        </p>
-        <p>
-          <Text type="secondary">
-            {translations.modalFooter}
-          </Text>
-        </p>
-      </Modal>
+      {/* Navigation Buttons */}
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        padding: '20px 0',
+        flexDirection: window.innerWidth < 768 ? 'column' : 'row',
+        gap: window.innerWidth < 768 ? '16px' : '0'
+      }}>
+        <Button 
+          icon={<LeftOutlined />}
+          onClick={onPrevious}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {translations.previous}
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '15px',
+          fontWeight: 500,
+          order: window.innerWidth < 768 ? -1 : 0
+        }}>
+          <span>{translations.step} {currentStep + 1} {translations.of} {totalSteps}</span>
+        </div>
+        
+        <Button 
+          onClick={onReset} 
+          size="large"
+          style={{
+            borderColor: '#d1d5db',
+            color: '#6b7280',
+            borderRadius: '8px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {translations.startNewImport}
+        </Button>
+      </div>
 
       {/* Grispi Upload Modal */}
       <Modal
@@ -630,9 +557,12 @@ const ResultStep: React.FC<ResultStepProps> = ({
             borderColor: '#10b981'
           }
         }}
+        width={window.innerWidth < 768 ? '90%' : 500}
+        centered
+        style={{ maxWidth: window.innerWidth < 768 ? 'calc(100vw - 32px)' : '500px' }}
       >
         <div style={{ marginBottom: '16px' }}>
-          <Text type="secondary">
+          <Text type="secondary" style={{ fontSize: window.innerWidth < 768 ? '13px' : '14px' }}>
             CSV dosyası oluşturulup Grispi API'sine ticket olarak gönderilecek.
           </Text>
         </div>
@@ -642,6 +572,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
               value={tenantId}
               onChange={(e) => setTenantId(e.target.value)}
               placeholder="help"
+              size={window.innerWidth < 768 ? 'middle' : 'large'}
             />
           </Form.Item>
           <Form.Item label="Ticket Subject" required>
@@ -649,13 +580,22 @@ const ResultStep: React.FC<ResultStepProps> = ({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder={`${importType} Import Dosyası`}
+              size={window.innerWidth < 768 ? 'middle' : 'large'}
             />
           </Form.Item>
         </Form>
-        <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px', border: '1px solid #d1fae5' }}>
-          <Text strong style={{ color: '#065f46' }}>Özet:</Text>
+        <div style={{ 
+          marginTop: '16px', 
+          padding: window.innerWidth < 768 ? '10px' : '12px', 
+          backgroundColor: '#f0fdf4', 
+          borderRadius: '8px', 
+          border: '1px solid #d1fae5' 
+        }}>
+          <Text strong style={{ color: '#065f46', fontSize: window.innerWidth < 768 ? '13px' : '14px' }}>
+            Özet:
+          </Text>
           <div style={{ marginTop: '8px' }}>
-            <Text style={{ fontSize: '12px', color: '#065f46' }}>
+            <Text style={{ fontSize: window.innerWidth < 768 ? '12px' : '13px', color: '#065f46' }}>
               • Toplam Satır: {excelData?.rows.length || 0}<br/>
               • Maplenen Alan: {mappings.length}<br/>
               • Import Türü: {importType}

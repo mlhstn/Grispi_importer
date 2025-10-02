@@ -7,7 +7,6 @@ import com.example.demo.Repository.UserRepository;
 import com.example.demo.Mapper.UserMapper;
 import com.example.demo.Validation.UserValidator;
 import com.example.demo.Validation.UserValidationResult;
-import com.example.demo.Service.ExcelService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
@@ -58,9 +57,7 @@ public class UserService implements ImportService {
             }
         }
         
-        System.out.println("Saving user with emails: " + user.getEmails());
         User savedUser = userRepository.save(user);
-        System.out.println("User saved with ID: " + savedUser.getId() + ", emails: " + savedUser.getEmails());
         return savedUser;
     }
 
@@ -89,45 +86,37 @@ public class UserService implements ImportService {
             int errorCount = 0;
             List<Map<String, Object>> errorDetails = new ArrayList<>();
             
+            // Dosya içi duplicate kontrolü için Set
+            java.util.Set<String> seenExternalIds = new java.util.HashSet<>();
+            
                          for (int i = 0; i < transformedData.size(); i++) {
                  Map<String, Object> row = transformedData.get(i);
                  // Excel'de header satırı olduğu için +2 yapıyoruz (header + 1-based indexing)
                  int actualRowNumber = i + 2;
                  try {
-                     System.out.println("Processing row " + actualRowNumber + ": " + row);
-                     System.out.println("Row keys: " + row.keySet());
-                     System.out.println("Row emails value: " + row.get("emails"));
                      User user = userMapper.mapWithMapping(row, mappings);
-                     System.out.println("Mapped user " + actualRowNumber + ": externalId=" + user.getExternalId() + 
-                                      ", firstName=" + user.getFirstName() + 
-                                      ", lastName=" + user.getLastName() + 
-                                      ", phone=" + user.getPhone() + 
-                                      ", emails=" + user.getEmails());
                      
-                     // External ID kontrolü - aynı ID varsa kaydetme
+                     // Dosya içi External ID duplicate kontrolü
                      if (user.getExternalId() != null && !user.getExternalId().trim().isEmpty()) {
-                         Optional<User> existingUser = userRepository.findByExternalId(user.getExternalId());
-                         if (existingUser.isPresent()) {
+                         if (seenExternalIds.contains(user.getExternalId())) {
                              errorCount++;
                                                       Map<String, Object> errorDetail = new HashMap<>();
                          errorDetail.put("rowNumber", actualRowNumber);
                          errorDetail.put("originalData", row);
-                         errorDetail.put("errors", List.of("External ID already exists: " + user.getExternalId()));
+                         errorDetail.put("errors", List.of("Duplicate External ID in file: " + user.getExternalId()));
                          errorDetails.add(errorDetail);
-                             System.out.println("User skipped - External ID already exists: " + user.getExternalId());
                              continue; // Bu satırı atla, sonrakine geç
                          }
+                         seenExternalIds.add(user.getExternalId());
                      }
                      
-                     // Telefon ve email duplicate kontrolü kaldırıldı - sadece external ID kontrolü yapılıyor
+                     // Telefon ve email duplicate kontrolü yok - sadece dosya içi external ID kontrolü
                      
-                     UserValidationResult validationResult = userValidator.validate(user);
-                     System.out.println("Validation result: " + validationResult.isValid() + ", errors: " + validationResult.getErrors());
-                     
-                     if (validationResult.isValid()) {
-                         saveUser(user);
-                         successCount++;
-                         System.out.println("User saved successfully: " + user.getExternalId());
+                    UserValidationResult validationResult = userValidator.validate(user);
+                    
+                    if (validationResult.isValid()) {
+                        // DB'ye kayıt yapma - sadece validasyon
+                        successCount++;
                      } else {
                          errorCount++;
                          Map<String, Object> errorDetail = new HashMap<>();
@@ -135,7 +124,6 @@ public class UserService implements ImportService {
                          errorDetail.put("originalData", row);
                          errorDetail.put("errors", validationResult.getErrors());
                          errorDetails.add(errorDetail);
-                         System.out.println("User validation failed: " + validationResult.getErrors());
                      }
                  } catch (Exception e) {
                      errorCount++;
@@ -144,8 +132,6 @@ public class UserService implements ImportService {
                      errorDetail.put("originalData", row);
                      errorDetail.put("errors", List.of("Row processing error: " + e.getMessage()));
                      errorDetails.add(errorDetail);
-                     System.out.println("Exception during processing: " + e.getMessage());
-                     e.printStackTrace();
                  }
              }
             
@@ -203,8 +189,6 @@ public class UserService implements ImportService {
     // Map'ten User oluştur
     private User createUserFromMap(Map<String, Object> data) {
         User user = new User();
-        
-        System.out.println("Creating user from data: " + data);
         
         // Temel alanları set et - farklı alan adları için kontrol
         if (data.containsKey("externalId")) {
@@ -332,7 +316,6 @@ public class UserService implements ImportService {
             user.setEnabled(true);
         }
         
-        System.out.println("Created user: " + user);
         return user;
     }
 

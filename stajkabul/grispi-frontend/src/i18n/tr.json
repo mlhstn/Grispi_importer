@@ -166,8 +166,7 @@
     "next": "Sonraki",
     "step": "Adım",
     "of": "/",
-    "showingRows": "Toplam {total} satırdan ilk 5 satır gösteriliyor.",
-    "useNavigationButtons": "Alan eşleştirmeye ilerlemek için navigasyon butonlarını kullanın."
+    "showingRows": "Toplam {total} satırdan ilk 5 satır gösteriliyor. Alan eşleştirmeye ilerlemek için navigasyon butonlarını kullanın."
   },
   "errors": {
     "externalIdExists": "Dış ID zaten mevcut: {externalId}",

@@ -87,7 +87,7 @@ public class GroupService implements ImportService {
                     GroupValidationResult validationResult = groupValidator.validate(group);
                     
                     if (validationResult.isValid()) {
-                        saveGroup(group);
+                        // DB'ye kayıt yapma - sadece validasyon
                         successCount++;
                     } else {
                         errorCount++;

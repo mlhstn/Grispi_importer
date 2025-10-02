@@ -189,9 +189,8 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginTop: '32px',
-        paddingTop: '24px',
-        borderTop: '1px solid #e5e7eb',
+        padding: '20px 0',
+        marginTop: '8px',
         flexDirection: window.innerWidth < 768 ? 'column' : 'row',
         gap: window.innerWidth < 768 ? '16px' : '0'
       }}>
@@ -199,47 +198,51 @@ const UploadStep: React.FC<UploadStepProps> = ({ onFileUpload, onNext, onPreviou
           icon={<LeftOutlined />}
           onClick={onPrevious}
           disabled={currentStep === 0}
-          size={window.innerWidth < 768 ? 'middle' : 'large'}
+          size="large"
           style={{
             borderRadius: '8px',
-            height: window.innerWidth < 768 ? '36px' : '40px',
-            paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-            paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-          width: window.innerWidth < 768 ? '100%' : 'auto'
-        }}
-      >
-        {t('navigation.previous')}
-      </Button>
-      
-      <div style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        gap: '8px',
-        color: '#6b7280',
-        fontSize: window.innerWidth < 768 ? '12px' : '14px',
-        order: window.innerWidth < 768 ? -1 : 0
-      }}>
-        <span>{t('navigation.step')} {currentStep + 1} {t('navigation.of')} {totalSteps}</span>
-      </div>
-      
-      <Button 
-        type="primary"
-        icon={<RightOutlined />}
-        onClick={onNext}
-        disabled={!selectedFile}
-        size={window.innerWidth < 768 ? 'middle' : 'large'}
-        style={{
-          borderRadius: '8px',
-          height: window.innerWidth < 768 ? '36px' : '40px',
-          paddingLeft: window.innerWidth < 768 ? '16px' : '20px',
-          paddingRight: window.innerWidth < 768 ? '16px' : '20px',
-          backgroundColor: '#9b51e0',
-          borderColor: '#9b51e0',
-          width: window.innerWidth < 768 ? '100%' : 'auto'
-        }}
-      >
-        {t('navigation.next')}
-      </Button>
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {t('navigation.previous')}
+        </Button>
+        
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '8px',
+          color: '#6b7280',
+          fontSize: '15px',
+          fontWeight: 500,
+          order: window.innerWidth < 768 ? -1 : 0
+        }}>
+          <span>{t('navigation.step')} {currentStep + 1} {t('navigation.of')} {totalSteps}</span>
+        </div>
+        
+        <Button 
+          type="primary"
+          icon={<RightOutlined />}
+          iconPosition="end"
+          onClick={onNext}
+          disabled={!selectedFile}
+          size="large"
+          style={{
+            borderRadius: '8px',
+            height: '44px',
+            paddingLeft: '24px',
+            paddingRight: '24px',
+            backgroundColor: '#9b51e0',
+            borderColor: '#9b51e0',
+            width: window.innerWidth < 768 ? '100%' : 'auto',
+            fontWeight: 500
+          }}
+        >
+          {t('navigation.next')}
+        </Button>
       </div>
     </div>
   );

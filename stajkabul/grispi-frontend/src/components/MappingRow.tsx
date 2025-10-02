@@ -24,6 +24,8 @@ const MappingRow: React.FC<MappingRowProps> = ({
 }) => {
 
 
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
   return (
     <Card 
       size="small" 
@@ -37,10 +39,10 @@ const MappingRow: React.FC<MappingRowProps> = ({
       }}
       hoverable
     >
-      <Row gutter={24} align="middle" style={{ minHeight: '60px' }}>
-        <Col span={10}>
+      <Row gutter={[16, 16]} align="middle" style={{ minHeight: isMobile ? 'auto' : '60px' }}>
+        <Col xs={24} sm={24} md={10}>
           <div style={{ padding: '8px 0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <Text strong style={{ fontSize: '15px', color: '#1f2937' }}>
                 {excelColumn}
               </Text>
@@ -48,25 +50,37 @@ const MappingRow: React.FC<MappingRowProps> = ({
                 <Tag color="red">Required</Tag>
               )}
             </div>
+            {isMobile && (
+              <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginTop: '4px' }}>
+                Excel Sütunu
+              </Text>
+            )}
           </div>
         </Col>
-        <Col span={2} style={{ textAlign: 'center' }}>
-          <ArrowRightOutlined 
-            style={{ 
-              color: '#9b51e0', 
-              fontSize: '16px',
-              fontWeight: 'bold'
-            }} 
-          />
-        </Col>
-        <Col span={12}>
+        {!isMobile && (
+          <Col span={2} style={{ textAlign: 'center' }}>
+            <ArrowRightOutlined 
+              style={{ 
+                color: '#9b51e0', 
+                fontSize: '16px',
+                fontWeight: 'bold'
+              }} 
+            />
+          </Col>
+        )}
+        <Col xs={24} sm={24} md={12}>
+          {isMobile && (
+            <Text type="secondary" style={{ fontSize: '12px', display: 'block', marginBottom: '8px' }}>
+              Grispi Alanı Seçin
+            </Text>
+          )}
           <Select
             style={{ width: '100%' }}
             placeholder="Select Grispi field..."
             value={selectedField}
             onChange={onFieldChange}
             allowClear
-            size="large"
+            size={isMobile ? 'middle' : 'large'}
             optionLabelProp="label"
             showSearch
             filterOption={(input, option) =>

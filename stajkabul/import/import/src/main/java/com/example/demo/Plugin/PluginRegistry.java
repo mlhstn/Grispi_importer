@@ -26,10 +26,8 @@ public class PluginRegistry {
         try {
             plugin.initialize();
             plugins.put(plugin.getName(), plugin);
-            System.out.println("Plugin registered: " + plugin.getName() + " v" + plugin.getVersion());
         } catch (Exception e) {
-            System.err.println("Failed to register plugin " + plugin.getName() + ": " + e.getMessage());
-            throw new RuntimeException("Plugin registration failed", e);
+            throw new RuntimeException("Plugin registration failed: " + plugin.getName(), e);
         }
     }
     
@@ -42,9 +40,8 @@ public class PluginRegistry {
             try {
                 plugin.destroy();
                 plugins.remove(pluginName);
-                System.out.println("Plugin unregistered: " + pluginName);
             } catch (Exception e) {
-                System.err.println("Failed to unregister plugin " + pluginName + ": " + e.getMessage());
+                // Plugin unregister failed, continue
             }
         }
     }
@@ -102,10 +99,8 @@ public class PluginRegistry {
             
             pluginBeans.values().forEach(this::registerPlugin);
             
-            System.out.println("Initialized " + plugins.size() + " plugins");
-            
         } catch (Exception e) {
-            System.err.println("Failed to initialize plugins: " + e.getMessage());
+            // Plugin initialization failed, continue
         }
     }
     

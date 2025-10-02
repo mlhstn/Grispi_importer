@@ -166,8 +166,7 @@
     "next": "Next",
     "step": "Step",
     "of": "of",
-    "showingRows": "Showing first 5 rows of {total} total rows.",
-    "useNavigationButtons": "Use the navigation buttons to proceed to field mapping."
+    "showingRows": "Showing first 5 rows of {total} total rows. Use the navigation buttons to proceed to field mapping."
   },
   "errors": {
     "externalIdExists": "External ID already exists: {externalId}",
