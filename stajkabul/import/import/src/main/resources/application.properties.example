@@ -7,8 +7,15 @@ spring.web.cors.allowed-headers=*
 spring.web.cors.allow-credentials=true
 
 # Database Configuration
-# For local development, use relative path
+# Option 1: Use relative path (recommended for local development)
 spring.datasource.url=jdbc:sqlite:../../../sqlitedb/importer.sqlite
+
+# Option 2: Use absolute path (customize for your system)
+# spring.datasource.url=jdbc:sqlite:/absolute/path/to/your/importer.sqlite
+
+# Option 3: Use environment variable
+# spring.datasource.url=jdbc:sqlite:${DB_PATH:/default/path/importer.sqlite}
+
 spring.datasource.driver-class-name=org.sqlite.JDBC
 
 spring.jpa.database-platform=org.sqlite.hibernate.dialect.SQLiteDialect
@@ -20,3 +27,4 @@ spring.jpa.hibernate.ddl-auto=update
 # Hibernate loglarını kapat
 logging.level.org.hibernate.SQL=ERROR
 logging.level.org.hibernate.type.descriptor.sql.BasicBinder=ERROR 
+
