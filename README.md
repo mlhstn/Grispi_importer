@@ -1,142 +1,476 @@
+# 📊 Grispi Data Import Tool
 
-## 🚀 Kurulum ve Çalıştırma
+Modern, plugin tabanlı Excel veri aktarım platformu. Grispi sistemine toplu veri yüklemeleri için gelişmiş bir web uygulaması.
+
+![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)
+![Java](https://img.shields.io/badge/Java-21-orange.svg)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7.18-brightgreen.svg)
+![React](https://img.shields.io/badge/React-18.3.1-61dafb.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-4.9.5-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+
+## 📋 İçindekiler
+
+- [Özellikler](#-özellikler)
+- [Teknoloji Stack](#-teknoloji-stack)
+- [Proje Yapısı](#-proje-yapısı)
+- [Kurulum](#-kurulum)
+- [Kullanım](#-kullanım)
+- [API Dokümantasyonu](#-api-dokümantasyonu)
+- [Ekran Görüntüleri](#-ekran-görüntüleri)
+- [Geliştirme](#-geliştirme)
+
+## ✨ Özellikler
+
+### 🎯 Temel Özellikler
+- **Excel İçe Aktarma**: `.xlsx` dosyalarından toplu veri yükleme
+- **Plugin Mimarisi**: Genişletilebilir plugin tabanlı sistem
+- **Dinamik Eşleştirme**: Excel sütunlarını sistem alanlarıyla eşleştirme
+- **Gerçek Zamanlı Doğrulama**: Anında veri doğrulama ve hata raporlama
+- **Çoklu Dil Desteği**: Türkçe, İngilizce, Almanca
+- **Modern UI**: Dark theme, responsive tasarım
+
+### 📦 Desteklenen Veri Tipleri
+1. **User (Kullanıcı)** - Kullanıcı bilgileri, roller, gruplar
+2. **Organization (Organizasyon)** - Şirket ve kuruluş bilgileri
+3. **Ticket (Bilet)** - Destek talepleri ve biletler
+4. **CustomField (Özel Alan)** - Dinamik form alanları
+5. **Group (Grup)** - Kullanıcı grupları
+
+### 🔄 Otomatik İşlemler
+- Eksik organizasyonları otomatik oluşturma
+- Eksik grupları otomatik oluşturma
+- E.164 format telefon numarası normalleştirme
+- Veri validasyonu ve temizleme
+
+### 🎨 Kullanıcı Deneyimi
+- **5 Adımlı Wizard**: Dosya yükleme → Önizleme → Eşleştirme → Özet → Sonuç
+- **Veri Önizleme**: Import öncesi veri kontrolü
+- **Mapping Template**: Eşleştirme şablonlarını kaydetme/yükleme
+- **Detaylı Raporlama**: Başarılı/başarısız kayıt raporları
+- **Hata Yönetimi**: Anlaşılır hata mesajları ve çözüm önerileri
+
+## 🛠 Teknoloji Stack
+
+### Backend
+```
+Java 21
+Spring Boot 2.7.18
+Spring Data JPA
+Hibernate 5.6.15
+SQLite Database
+Apache POI (Excel processing)
+Lombok
+```
+
+### Frontend
+```
+React 18.3.1
+TypeScript 4.9.5
+Ant Design 5.26.7
+i18next (Internationalization)
+XLSX (Excel parsing)
+React Hooks
+```
+
+### Mimari Özellikler
+- **RESTful API** - Standard HTTP endpoints
+- **Plugin Pattern** - Genişletilebilir mimari
+- **Factory Pattern** - Service factory yapısı
+- **Repository Pattern** - Data access layer
+- **DTO Pattern** - Data transfer objects
+- **Validation Layer** - Çok katmanlı doğrulama
+
+## 📁 Proje Yapısı
+
+```
+grispi-staj/
+├── stajkabul/
+│   ├── grispi-frontend/          # React Frontend
+│   │   ├── src/
+│   │   │   ├── components/       # Reusable components
+│   │   │   ├── pages/           # Step components
+│   │   │   ├── services/        # API services
+│   │   │   ├── hooks/           # Custom hooks
+│   │   │   ├── i18n/            # Language files
+│   │   │   ├── types/           # TypeScript types
+│   │   │   ├── utils/           # Helper functions
+│   │   │   ├── config/          # Configuration files
+│   │   │   └── plugins/         # Frontend plugins
+│   │   └── package.json
+│   │
+│   ├── import/import/            # Spring Boot Backend
+│   │   ├── src/main/java/com/example/demo/
+│   │   │   ├── ApiClient/       # External API clients
+│   │   │   ├── Config/          # Spring configuration
+│   │   │   ├── Controller/      # REST controllers
+│   │   │   ├── DTO/             # Data Transfer Objects
+│   │   │   ├── Entity/          # JPA entities
+│   │   │   ├── Factory/         # Factory classes
+│   │   │   ├── Mapper/          # Data mappers
+│   │   │   ├── Plugin/          # Plugin system
+│   │   │   ├── Repository/      # Data repositories
+│   │   │   ├── Service/         # Business logic
+│   │   │   └── Validation/      # Validators
+│   │   └── pom.xml
+│   │
+│   └── sqlitedb/                # SQLite database
+│       └── importer.sqlite
+│
+└── README.md
+```
+
+## 🚀 Kurulum
 
 ### Gereksinimler
-- Java 21
-- Maven 3.8+
-- React
-- TypeScript
-- Ant Ant Design
+- **Java 21** veya üzeri
+- **Node.js 16+** ve npm
+- **Maven 3.8+**
+- **Git**
 
 ### Backend Kurulumu
+
 ```bash
+# Proje dizinine git
 cd stajkabul/import/import
+
+# Bağımlılıkları yükle ve derle
 mvn clean install
+
+# Uygulamayı başlat
 mvn spring-boot:run
 ```
 
-Backend varsayılan olarak `http://localhost:8080` adresinde çalışır.
+Backend varsayılan olarak **http://localhost:8080** adresinde çalışır.
 
 ### Frontend Kurulumu
+
 ```bash
-cd grispi-frontend
+# Frontend dizinine git
+cd stajkabul/grispi-frontend
+
+# Bağımlılıkları yükle
 npm install
+
+# Development server'ı başlat
 npm start
 ```
 
-Frontend varsayılan olarak `http://localhost:3000` adresinde çalışır.
+Frontend varsayılan olarak **http://localhost:3000** adresinde çalışır.
 
-## 📋 Kullanım Kılavuzu
+### Production Build
 
-### 1. Dosya Yükleme
+```bash
+# Frontend production build
+cd stajkabul/grispi-frontend
+npm run build
+
+# Backend JAR dosyası oluştur
+cd stajkabul/import/import
+mvn clean package
+```
+
+## 📖 Kullanım
+
+### 1️⃣ Dosya Yükleme
 - "Dosya Seç" butonuna tıklayın
 - Excel (.xlsx) dosyanızı seçin
 - Import türünü seçin (Contact, Organization, Ticket, CustomField)
 
-### 2. Veri Önizleme
-- Yüklenen dosyanın ilk 5 satırı otomatik gösterilir
-- Sütun başlıkları ve örnek veriler görüntülenir
+### 2️⃣ Veri Önizleme
+- Yüklenen dosyanın ilk 5 satırı otomatik görüntülenir
+- Sütun başlıkları ve örnek veriler kontrol edilir
+- "Devam Et" ile sonraki adıma geçin
 
-### 3. Alan Eşleştirme
+### 3️⃣ Alan Eşleştirme (Mapping)
 - Excel sütunlarını Grispi alanlarıyla eşleştirin
-- Zorunlu alanlar kırmızı ile işaretlenir
-- Eşleştirme tamamlandığında "Devam Et" butonuna tıklayın
+- Zorunlu alanlar **kırmızı** ile işaretlenir
+- İsteğe bağlı alanlar **yeşil** ile gösterilir
+- Eşleştirme şablonunu kaydedebilirsiniz
 
-### 4. Import İşlemi
+### 4️⃣ Özet Kontrolü
+- Eşleştirilen alanları gözden geçirin
+- Toplam kayıt sayısını kontrol edin
+- Son kontrolleri yapın
+
+### 5️⃣ Import Sonucu
 - Sistem verileri doğrular ve kaydeder
 - Başarılı/başarısız kayıtlar raporlanır
-- Hata detayları gösterilir
+- Hata detayları ve satır numaraları gösterilir
+- Sonuçları CSV olarak indirebilirsiniz
 
-## �� API Endpoints
+## 🌐 API Dokümantasyonu
 
-### Excel İşlemleri
-- `POST /api/import/excel/preview` - Excel önizleme
-- `POST /api/import/{type}/import-excel` - Excel import
+### Base URL
+```
+http://localhost:8080
+```
 
-### Kullanıcı İşlemleri
-- `POST /api/users/validate` - Kullanıcı doğrulama
-- `POST /api/users/import` - Kullanıcı import
-- `POST /api/users/import-mapped` - Mapping ile import
+### Endpoints
 
-### Organizasyon İşlemleri
-- `POST /api/organizations/validate` - Organizasyon doğrulama
-- `POST /api/organizations/import` - Organizasyon import
+#### Excel İşlemleri
+```http
+# Excel önizleme
+POST /api/import/excel/preview
+Content-Type: multipart/form-data
+Body: file (Excel file)
 
-### Bilet İşlemleri
-- `POST /api/tickets/validate` - Bilet doğrulama
-- `POST /api/tickets/import` - Bilet import
+# Excel import (mapping ile)
+POST /api/import/{type}/import-excel
+Content-Type: multipart/form-data
+Body: file, mappings (JSON)
+```
 
-## 📊 Veri Modelleri
+#### Kullanıcı İşlemleri
+```http
+# Kullanıcı doğrulama
+POST /api/users/validate
+Content-Type: application/json
+Body: User[]
 
-### User (Kullanıcı)
+# Kullanıcı import
+POST /api/users/import
+Content-Type: application/json
+Body: User[]
+
+# Mapping ile import
+POST /api/users/import-mapped
+Content-Type: application/json
+Body: UserImportRequest
+```
+
+#### Organizasyon İşlemleri
+```http
+# Organizasyon doğrulama
+POST /api/organizations/validate
+
+# Organizasyon import
+POST /api/organizations/import
+
+# Mapping ile import
+POST /api/organizations/import-mapped
+```
+
+#### Bilet İşlemleri
+```http
+# Bilet doğrulama
+POST /api/tickets/validate
+
+# Bilet import
+POST /api/tickets/import
+
+# Mapping ile import
+POST /api/tickets/import-mapped
+```
+
+#### CustomField İşlemleri
+```http
+# CustomField import
+POST /api/custom-fields/import
+```
+
+### Veri Modelleri
+
+#### User (Kullanıcı)
 ```json
 {
   "externalId": "string",
-  "firstName": "string",
-  "lastName": "string",
-  "phone": "string (E.164 format)",
+  "firstName": "string (required)",
+  "lastName": "string (required)",
+  "phone": "string (E.164 format: +90XXXXXXXXXX)",
   "emails": ["string"],
-  "phones": ["string"],
-  "organization": "Organization",
-  "groups": ["Group"],
+  "organization": "Organization ID",
+  "groups": ["Group names"],
   "language": "TR|EN|DE",
   "role": "ADMIN|AGENT|CUSTOMER",
   "tags": ["string"],
-  "enabled": "boolean"
+  "enabled": true
 }
 ```
 
-### Organization (Organizasyon)
+#### Organization (Organizasyon)
 ```json
 {
   "externalId": "string",
-  "name": "string",
+  "name": "string (required)",
   "description": "string",
+  "details": "string",
+  "notes": "string",
   "domains": ["string"],
   "tags": ["string"]
 }
 ```
 
-## ✅ Validasyon Kuralları
+#### Ticket (Bilet)
+```json
+{
+  "externalId": "string",
+  "subject": "string (required, min: 3)",
+  "description": "string (required)",
+  "creator": "User ID (required)",
+  "requester": "User ID (required)",
+  "assignee": "User ID",
+  "assigneeGroup": "Group name",
+  "organization": "Organization ID",
+  "status": "enum",
+  "channel": "enum",
+  "type": "enum",
+  "priority": "enum",
+  "tags": ["string"],
+  "createdAt": "ISO 8601 date",
+  "updatedAt": "ISO 8601 date",
+  "solvedAt": "ISO 8601 date"
+}
+```
 
-### User Validasyonu
-- `externalId`: Zorunlu, boş olamaz
-- `firstName`: Zorunlu, boş olamaz
-- `lastName`: Zorunlu, boş olamaz
-- `phone`: E.164 formatında olmalı (+90XXXXXXXXXX)
-- `emails`: Geçerli email formatında olmalı
-- `role`: ADMIN, AGENT veya CUSTOMER olmalı
+### Validasyon Kuralları
 
-### Organization Validasyonu
-- `externalId`: Zorunlu, boş olamaz
-- `name`: Zorunlu, boş olamaz
+#### User Validasyonu
+- `firstName` ve `lastName` zorunlu
+- `phone` E.164 formatında (+90XXXXXXXXXX)
+- `emails` geçerli email formatında
+- `role` geçerli enum değeri (ADMIN, AGENT, CUSTOMER)
 
-## 🔄 Otomatik İşlemler
+#### Organization Validasyonu
+- `name` zorunlu ve boş olamaz
+- `externalId` unique olmalı
 
-### Organization Otomatik Oluşturma
-- Excel'de belirtilen organization bulunamazsa otomatik oluşturulur
-- `externalId` ve `name` alanları aynı değerle set edilir
+#### Ticket Validasyonu
+- `subject` minimum 3 karakter
+- `description` zorunlu
+- `creator` ve `requester` zorunlu ve geçerli User ID
 
-### Group Otomatik Oluşturma
-- Excel'de belirtilen group bulunamazsa otomatik oluşturulur
-- `name` alanı ile yeni group oluşturulur
+### Response Formatı
 
-## �� Hata Yönetimi
+#### Başarılı Response
+```json
+{
+  "success": true,
+  "totalRecords": 100,
+  "successCount": 95,
+  "errorCount": 5,
+  "errors": [
+    {
+      "rowNumber": 3,
+      "field": "email",
+      "message": "Invalid email format",
+      "value": "invalid-email"
+    }
+  ]
+}
+```
 
-### Validation Hataları
-- Her entity için özel validator sınıfları
-- Detaylı hata mesajları
-- Hatalı kayıtların raporlanması
+#### Hata Response
+```json
+{
+  "success": false,
+  "error": "Error message",
+  "details": "Detailed error information"
+}
+```
 
-### Exception Handling
-- Global exception handler
-- Kullanıcı dostu hata mesajları
-- Log kayıtları
+## 📸 Ekran Görüntüleri
 
-- Projeye ait ilgili videoya aşağıdaki linkten ulaşabilirsiniz:
-  https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0
+> **Not**: Proje demo videosu için [buraya tıklayın](https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0)
 
+## 🔧 Geliştirme
 
+### Yeni Plugin Ekleme
 
+#### Backend Plugin
+```java
+@Component
+public class MyCustomPlugin implements ImportPlugin {
+    @Override
+    public String getType() {
+        return "MyCustomType";
+    }
+    
+    @Override
+    public Object process(Map<String, Object> data) {
+        // Plugin logic
+    }
+}
+```
 
+#### Frontend Plugin
+```typescript
+export const MyCustomPlugin = {
+  type: 'MyCustomType',
+  fields: [...],
+  validate: (data) => {...}
+};
+```
 
+### Test Çalıştırma
+
+```bash
+# Backend tests
+cd stajkabul/import/import
+mvn test
+
+# Frontend tests
+cd stajkabul/grispi-frontend
+npm test
+```
+
+### Kod Standartları
+- **Backend**: Java Code Conventions, Spring Boot best practices
+- **Frontend**: ESLint + React best practices
+- **Clean Code**: Katmanlı mimari, SOLID prensipleri
+- **Documentation**: JSDoc/JavaDoc yorumları
+
+## 🎯 Mimari Kararlar
+
+### Plugin Sistemi
+Genişletilebilir plugin mimarisi sayesinde yeni veri tipleri kolayca eklenebilir.
+
+### Katmanlı Mimari
+- **Controller Layer**: HTTP istekleri
+- **Service Layer**: İş mantığı
+- **Repository Layer**: Veri erişimi
+- **Validation Layer**: Veri doğrulama
+
+### Validasyon Stratejisi
+Çok katmanlı validasyon:
+1. Frontend validasyonu (anlık feedback)
+2. Backend validasyonu (güvenlik)
+3. Database constraints (veri bütünlüğü)
+
+## 📝 Versiyonlama
+
+### v2.0.0 (Mevcut)
+- ✨ Plugin tabanlı mimari
+- 🌍 Çoklu dil desteği
+- 🎨 Modern dark theme UI
+- 📊 Gelişmiş raporlama
+- 🔄 Mapping template sistemi
+
+### Breaking Changes (v2.0.0)
+- `User.phones` alanı kaldırıldı → `User.phone` kullanın
+- API endpoint'leri yeniden yapılandırıldı
+
+## 🤝 Katkıda Bulunma
+
+1. Fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit edin (`git commit -m 'feat: Add amazing feature'`)
+4. Push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır.
+
+## 👨‍💻 Geliştirici
+
+**Grispi Staj Projesi**
+
+## 🔗 Bağlantılar
+
+- [API Dokümantasyonu](./stajkabul/import/import/API_DOCUMENTATION.md)
+- [Demo Video](https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0)
+
+---
+
+⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!
