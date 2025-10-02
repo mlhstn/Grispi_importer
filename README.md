@@ -24,24 +24,15 @@ Modern, plugin tabanlı Excel veri aktarım platformu. Grispi sistemine toplu ve
 
 ### 🎯 Temel Özellikler
 - **Excel İçe Aktarma**: `.xlsx` dosyalarından toplu veri yükleme
-- **Plugin Mimarisi**: Genişletilebilir plugin tabanlı sistem
 - **Dinamik Eşleştirme**: Excel sütunlarını sistem alanlarıyla eşleştirme
 - **Gerçek Zamanlı Doğrulama**: Anında veri doğrulama ve hata raporlama
 - **Çoklu Dil Desteği**: Türkçe, İngilizce, Almanca
-- **Modern UI**: Dark theme, responsive tasarım
+- **Modern UI**: Responsive tasarım
 
 ### 📦 Desteklenen Veri Tipleri
 1. **User (Kullanıcı)** - Kullanıcı bilgileri, roller, gruplar
-2. **Organization (Organizasyon)** - Şirket ve kuruluş bilgileri
-3. **Ticket (Bilet)** - Destek talepleri ve biletler
-4. **CustomField (Özel Alan)** - Dinamik form alanları
-5. **Group (Grup)** - Kullanıcı grupları
-
-### 🔄 Otomatik İşlemler
-- Eksik organizasyonları otomatik oluşturma
-- Eksik grupları otomatik oluşturma
-- E.164 format telefon numarası normalleştirme
-- Veri validasyonu ve temizleme
+2. **Ticket (Bilet)** - Destek talepleri ve biletler
+3. **CustomField (Özel Alan)** - Dinamik form alanları
 
 ### 🎨 Kullanıcı Deneyimi
 - **5 Adımlı Wizard**: Dosya yükleme → Önizleme → Eşleştirme → Özet → Sonuç
@@ -175,7 +166,7 @@ mvn clean package
 ### 1️⃣ Dosya Yükleme
 - "Dosya Seç" butonuna tıklayın
 - Excel (.xlsx) dosyanızı seçin
-- Import türünü seçin (Contact, Organization, Ticket, CustomField)
+- Import türünü seçin (User, Ticket, CustomField)
 
 ### 2️⃣ Veri Önizleme
 - Yüklenen dosyanın ilk 5 satırı otomatik görüntülenir
@@ -184,8 +175,6 @@ mvn clean package
 
 ### 3️⃣ Alan Eşleştirme (Mapping)
 - Excel sütunlarını Grispi alanlarıyla eşleştirin
-- Zorunlu alanlar **kırmızı** ile işaretlenir
-- İsteğe bağlı alanlar **yeşil** ile gösterilir
 - Eşleştirme şablonunu kaydedebilirsiniz
 
 ### 4️⃣ Özet Kontrolü
@@ -239,24 +228,12 @@ Content-Type: application/json
 Body: UserImportRequest
 ```
 
-#### Organizasyon İşlemleri
+#### Ticket İşlemleri
 ```http
-# Organizasyon doğrulama
-POST /api/organizations/validate
-
-# Organizasyon import
-POST /api/organizations/import
-
-# Mapping ile import
-POST /api/organizations/import-mapped
-```
-
-#### Bilet İşlemleri
-```http
-# Bilet doğrulama
+# Ticket doğrulama
 POST /api/tickets/validate
 
-# Bilet import
+# Ticket import
 POST /api/tickets/import
 
 # Mapping ile import
@@ -288,20 +265,7 @@ POST /api/custom-fields/import
 }
 ```
 
-#### Organization (Organizasyon)
-```json
-{
-  "externalId": "string",
-  "name": "string (required)",
-  "description": "string",
-  "details": "string",
-  "notes": "string",
-  "domains": ["string"],
-  "tags": ["string"]
-}
-```
-
-#### Ticket (Bilet)
+#### Ticket 
 ```json
 {
   "externalId": "string",
@@ -329,7 +293,7 @@ POST /api/custom-fields/import
 - `firstName` ve `lastName` zorunlu
 - `phone` E.164 formatında (+90XXXXXXXXXX)
 - `emails` geçerli email formatında
-- `role` geçerli enum değeri (ADMIN, AGENT, CUSTOMER)
+- `role` geçerli enum değeri (ADMIN, CUSTOMER)
 
 #### Organization Validasyonu
 - `name` zorunlu ve boş olamaz
@@ -372,104 +336,6 @@ POST /api/custom-fields/import
 ## 📸 Ekran Görüntüleri
 
 > **Not**: Proje demo videosu için [buraya tıklayın](https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0)
-
-## 🔧 Geliştirme
-
-### Yeni Plugin Ekleme
-
-#### Backend Plugin
-```java
-@Component
-public class MyCustomPlugin implements ImportPlugin {
-    @Override
-    public String getType() {
-        return "MyCustomType";
-    }
-    
-    @Override
-    public Object process(Map<String, Object> data) {
-        // Plugin logic
-    }
-}
-```
-
-#### Frontend Plugin
-```typescript
-export const MyCustomPlugin = {
-  type: 'MyCustomType',
-  fields: [...],
-  validate: (data) => {...}
-};
-```
-
-### Test Çalıştırma
-
-```bash
-# Backend tests
-cd stajkabul/import/import
-mvn test
-
-# Frontend tests
-cd stajkabul/grispi-frontend
-npm test
-```
-
-### Kod Standartları
-- **Backend**: Java Code Conventions, Spring Boot best practices
-- **Frontend**: ESLint + React best practices
-- **Clean Code**: Katmanlı mimari, SOLID prensipleri
-- **Documentation**: JSDoc/JavaDoc yorumları
-
-## 🎯 Mimari Kararlar
-
-### Plugin Sistemi
-Genişletilebilir plugin mimarisi sayesinde yeni veri tipleri kolayca eklenebilir.
-
-### Katmanlı Mimari
-- **Controller Layer**: HTTP istekleri
-- **Service Layer**: İş mantığı
-- **Repository Layer**: Veri erişimi
-- **Validation Layer**: Veri doğrulama
-
-### Validasyon Stratejisi
-Çok katmanlı validasyon:
-1. Frontend validasyonu (anlık feedback)
-2. Backend validasyonu (güvenlik)
-3. Database constraints (veri bütünlüğü)
-
-## 📝 Versiyonlama
-
-### v2.0.0 (Mevcut)
-- ✨ Plugin tabanlı mimari
-- 🌍 Çoklu dil desteği
-- 🎨 Modern dark theme UI
-- 📊 Gelişmiş raporlama
-- 🔄 Mapping template sistemi
-
-### Breaking Changes (v2.0.0)
-- `User.phones` alanı kaldırıldı → `User.phone` kullanın
-- API endpoint'leri yeniden yapılandırıldı
-
-## 🤝 Katkıda Bulunma
-
-1. Fork edin
-2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
-3. Commit edin (`git commit -m 'feat: Add amazing feature'`)
-4. Push edin (`git push origin feature/amazing-feature`)
-5. Pull Request açın
-
-## 📄 Lisans
-
-Bu proje MIT lisansı altında lisanslanmıştır.
-
-## 👨‍💻 Geliştirici
-
-**Grispi Staj Projesi**
-
-## 🔗 Bağlantılar
-
-- [API Dokümantasyonu](./stajkabul/import/import/API_DOCUMENTATION.md)
-- [Demo Video](https://1drv.ms/f/c/ce2939c88c9e94d8/EkATqyn1-kNGqklUTOMajYEBF2sv42sPhnwPe-hTZmmpEw?e=9IRnb0)
 
 ---
 
