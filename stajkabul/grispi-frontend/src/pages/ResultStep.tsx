@@ -47,6 +47,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
   const [grispiModalVisible, setGrispiModalVisible] = useState(false);
   const [tenantId, setTenantId] = useState('help');
   const [subject, setSubject] = useState(`${importType} Import Dosyası`);
+  const [grispiTicketId, setGrispiTicketId] = useState<string | null>(null);
 
   // Translation strings
   const translations = {
@@ -118,6 +119,12 @@ const ResultStep: React.FC<ResultStepProps> = ({
     message.success(t('result.downloadSuccess') as any);
   };
 
+  const handleReset = () => {
+    setGrispiTicketId(null);
+    setImportResult(null);
+    onReset();
+  };
+
   const handleSendToGrispi = async () => {
     if (!excelData || !excelFile) {
       message.error('Excel verisi bulunamadı');
@@ -173,7 +180,9 @@ const ResultStep: React.FC<ResultStepProps> = ({
       const grispiResponse = await apiService.uploadToGrispi(csvFile, tenantId, subject, htmlBody);
       
       if (grispiResponse.success) {
-        message.success(`Grispi'ye gönderildi! Ticket ID: ${grispiResponse.data || 'Bilinmiyor'}`);
+        const ticketId = grispiResponse.data?.key || grispiResponse.data || 'Bilinmiyor';
+        setGrispiTicketId(ticketId);
+        message.success(`Grispi'ye başarıyla gönderildi! Ticket ID: ${ticketId}`);
       } else {
         message.error(`Grispi gönderimi başarısız: ${grispiResponse.error}`);
       }
@@ -207,6 +216,41 @@ const ResultStep: React.FC<ResultStepProps> = ({
 {t('result.subtitle')}
         </Text>
       </div>
+
+      {/* Grispi Ticket ID Display */}
+      {grispiTicketId && (
+        <Card 
+          style={{ 
+            marginBottom: '24px', 
+            border: '2px solid #9b51e0',
+            backgroundColor: '#f5f3ff',
+            borderRadius: '12px'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <CheckCircleOutlined style={{ fontSize: '24px', color: '#9b51e0' }} />
+              <div>
+                <Text strong style={{ color: '#6b21a8', display: 'block', fontSize: '16px' }}>
+                  ✅ Grispi'ye Başarıyla Gönderildi!
+                </Text>
+                <Text type="secondary" style={{ fontSize: '14px' }}>
+                  Ticket ID: <Text strong copyable style={{ color: '#9b51e0' }}>{grispiTicketId}</Text>
+                </Text>
+              </div>
+            </div>
+            <Button
+              type="link"
+              icon={<FileTextOutlined />}
+              href={`https://${tenantId}.grispi.com/tickets/${grispiTicketId}`}
+              target="_blank"
+              style={{ color: '#9b51e0' }}
+            >
+              Ticket'ı Görüntüle
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {/* Import Result Display */}
       {importResult && (
@@ -525,7 +569,7 @@ const ResultStep: React.FC<ResultStepProps> = ({
         </div>
         
         <Button 
-          onClick={onReset} 
+          onClick={handleReset} 
           size="large"
           style={{
             borderColor: '#d1d5db',
