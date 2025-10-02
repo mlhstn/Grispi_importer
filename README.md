@@ -290,14 +290,10 @@ POST /api/custom-fields/import
 ### Validasyon Kuralları
 
 #### User Validasyonu
-- `firstName` ve `lastName` zorunlu
+- `firstName`, `lastName`, `Id`, `mail` alanlarından en az bir tanesi zorunlu
 - `phone` E.164 formatında (+90XXXXXXXXXX)
 - `emails` geçerli email formatında
 - `role` geçerli enum değeri (ADMIN, CUSTOMER)
-
-#### Organization Validasyonu
-- `name` zorunlu ve boş olamaz
-- `externalId` unique olmalı
 
 #### Ticket Validasyonu
 - `subject` minimum 3 karakter
