@@ -1,4 +1,4 @@
-spring.application.name=ContactsImporter
+SQLite'ı geri aktif et (şu anki kodu korur)spring.application.name=ContactsImporter
 
 # CORS Configuration
 spring.web.cors.allowed-origins=http://localhost:3000
