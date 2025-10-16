@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from './hooks/useLanguage';
+import { useBreakpoints } from './hooks/useMediaQuery';
 import UploadStep from './pages/UploadStep';
 import DataPreviewStep from './pages/DataPreviewStep';
 import MappingStep from './pages/MappingStep';
@@ -37,6 +38,7 @@ const { Step } = Steps;
 function App() {
   const { t } = useTranslation();
   const { currentLanguage, changeLanguage, supportedLanguages, getCurrentLanguageInfo } = useLanguage();
+  const { isMobile, isTablet, isDesktop, isLargeDesktop } = useBreakpoints();
   const [currentStep, setCurrentStep] = useState(0);
   const [excelData, setExcelData] = useState<ExcelData | null>(null);
   const [excelFile, setExcelFile] = useState<File | null>(null);
@@ -226,17 +228,17 @@ function App() {
     <Layout style={{ minHeight: '100vh' }}>
       {/* Sidebar */}
       <Sider 
-        width={window.innerWidth < 768 ? 200 : 250}
-        collapsedWidth={window.innerWidth < 768 ? 0 : 80}
+        width={isMobile ? 200 : isTablet ? 220 : 250}
+        collapsedWidth={isMobile ? 0 : 80}
         breakpoint="md"
-        collapsible={window.innerWidth < 768}
+        collapsible={isMobile}
         style={{ 
           background: 'var(--grispi-sidebar-bg)',
           borderRight: '1px solid var(--grispi-sidebar-border)'
         }}
       >
         <div style={{ 
-          padding: window.innerWidth < 768 ? '16px' : '20px', 
+          padding: isMobile ? '16px' : '20px', 
           borderBottom: '1px solid var(--grispi-sidebar-border)' 
         }}>
           <Title 
@@ -244,7 +246,7 @@ function App() {
             className="grispi-sidebar-text" 
             style={{ 
               margin: 0,
-              fontSize: window.innerWidth < 768 ? '16px' : '18px'
+              fontSize: isMobile ? '16px' : '18px'
             }}
           >
             {t('app.title')}
@@ -267,19 +269,19 @@ function App() {
         {/* Header */}
         <Header style={{ 
           background: 'var(--grispi-bg-primary)', 
-          padding: window.innerWidth < 768 ? '0 16px' : '0 24px', 
+          padding: isMobile ? '0 16px' : '0 24px', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
           borderBottom: '1px solid var(--grispi-border)',
-          height: window.innerWidth < 768 ? '56px' : '64px'
+          height: isMobile ? '56px' : '64px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <MenuOutlined 
               className="grispi-mor-text" 
               style={{ 
-                fontSize: window.innerWidth < 768 ? '16px' : '18px', 
-                marginRight: window.innerWidth < 768 ? '12px' : '16px' 
+                fontSize: isMobile ? '16px' : '18px', 
+                marginRight: isMobile ? '12px' : '16px' 
               }} 
             />
             <Title 
@@ -287,15 +289,15 @@ function App() {
               style={{ 
                 margin: 0, 
                 color: 'var(--grispi-text-primary)',
-                fontSize: window.innerWidth < 768 ? '16px' : '18px'
+                fontSize: isMobile ? '16px' : '18px'
               }}
             >
               {t('app.importContacts')}
             </Title>
           </div>
           
-          <Space size={window.innerWidth < 768 ? 'middle' : 'large'}>
-            {window.innerWidth >= 768 && (
+          <Space size={isMobile ? 'middle' : 'large'}>
+            {!isMobile && (
               <>
                 <QuestionCircleOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
                 <BellOutlined style={{ fontSize: '18px', color: 'var(--grispi-text-secondary)' }} />
@@ -317,7 +319,7 @@ function App() {
             <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
               <Space style={{ cursor: 'pointer' }}>
                 <Avatar size="small" icon={<UserSwitchOutlined />} />
-                {window.innerWidth >= 768 && (
+                {!isMobile && (
                   <span style={{ color: 'var(--grispi-text-secondary)' }}>Username</span>
                 )}
               </Space>
@@ -327,21 +329,21 @@ function App() {
         
         {/* Content */}
         <Content style={{ 
-          padding: window.innerWidth < 768 ? '16px' : '24px', 
+          padding: isMobile ? '16px' : '24px', 
           background: 'var(--grispi-bg-secondary)',
-          minHeight: window.innerWidth < 768 ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)'
+          minHeight: isMobile ? 'calc(100vh - 56px)' : 'calc(100vh - 64px)'
         }}>
           <div style={{ 
-            maxWidth: 1200, 
+            maxWidth: isLargeDesktop ? 1400 : isDesktop ? 1200 : 1200, 
             margin: '0 auto',
-            padding: window.innerWidth < 768 ? '0 8px' : '0'
+            padding: isMobile ? '0 8px' : '0'
           }}>
             {/* Steps */}
             <div style={{ 
               background: 'var(--grispi-bg-primary)', 
-              padding: window.innerWidth < 768 ? '16px' : '24px', 
+              padding: isMobile ? '16px' : '24px', 
               borderRadius: '12px', 
-              marginBottom: window.innerWidth < 768 ? '16px' : '24px',
+              marginBottom: isMobile ? '16px' : '24px',
               boxShadow: '0 2px 8px var(--grispi-shadow-card)'
             }}>
               <Steps 

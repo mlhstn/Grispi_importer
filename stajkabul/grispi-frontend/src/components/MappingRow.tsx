@@ -3,6 +3,7 @@ import { Row, Col, Select, Typography, Card, Tag } from 'antd';
 import { ArrowRightOutlined } from '@ant-design/icons';
 
 import { GrispiField } from '../types';
+import { useBreakpoints } from '../hooks/useMediaQuery';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -22,9 +23,7 @@ const MappingRow: React.FC<MappingRowProps> = ({
   onFieldChange,
   requiredFields = {}
 }) => {
-
-
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const { isMobile } = useBreakpoints();
 
   return (
     <Card 
