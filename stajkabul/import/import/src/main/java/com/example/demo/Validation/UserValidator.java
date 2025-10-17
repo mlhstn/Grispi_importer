@@ -24,7 +24,7 @@ public class UserValidator {
                                   !isBlank(user.getPhone());
         
         if (!hasRequiredField) {
-            result.addError("At least one of these fields is required: firstName, externalId, email, or phone.");
+            result.addError("At least one of these fields is required: {fields}");
         }
 
         // Email format kontrolü (varsa)

@@ -87,6 +87,7 @@ const ERROR_TRANSLATION_MAP: ErrorTranslationMap = {
   'forbidden': 'errors.forbidden',
   
   // Required fields hataları
+  'At least one of these fields is required: {fields}': 'errors.atLeastOneFieldRequired',
   'At least one of these fields is required': 'errors.atLeastOneFieldRequired',
   'at least one of these fields is required': 'errors.atLeastOneFieldRequired',
   'At least one field is required': 'errors.atLeastOneFieldRequired',
@@ -111,7 +112,7 @@ export const translateErrorMessage = (errorMessage: string, t: TFunction): strin
       phone: extractValue(errorMessage, ':', 1),
       field: extractValue(errorMessage, ':', 1),
       message: extractValue(errorMessage, ':', 1),
-      fields: extractValue(errorMessage, ':', 1)
+      fields: extractFieldsFromErrorMessage(errorMessage)
     });
   }
   
@@ -124,7 +125,7 @@ export const translateErrorMessage = (errorMessage: string, t: TFunction): strin
         phone: extractValue(errorMessage, ':', 1),
         field: extractValue(errorMessage, ':', 1),
         message: extractValue(errorMessage, ':', 1),
-        fields: extractValue(errorMessage, ':', 1)
+        fields: extractFieldsFromErrorMessage(errorMessage)
       });
     }
   }
@@ -143,6 +144,18 @@ export const translateErrorMessage = (errorMessage: string, t: TFunction): strin
 const extractValue = (message: string, separator: string, index: number): string => {
   const parts = message.split(separator);
   return parts.length > index ? parts[index].trim() : '';
+};
+
+/**
+ * "At least one of these fields is required" hata mesajından field listesini çıkarır
+ * @param message Hata mesajı
+ * @returns Field listesi string'i
+ */
+const extractFieldsFromErrorMessage = (message: string): string => {
+  if (message.includes('At least one of these fields is required')) {
+    return 'firstName, externalId, email, or phone';
+  }
+  return '';
 };
 
 /**
